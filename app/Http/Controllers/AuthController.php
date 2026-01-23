@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Auth\VerifyEmailRequest;
+use App\Models\User;
 use App\Services\AuthService;
 use App\Traits\ApiResponse;
 use App\Traits\AuthResponse;
@@ -31,9 +33,46 @@ class AuthController extends Controller
             $user = $this->authService->register($request->validated());
             $token = $this->authService->generateToken($user);
 
-            return $this->respondWithToken($token, $user, 'User registered successfully', 201);
+            return $this->respondWithToken($token, $user, 'Registration successful. Please verify your email with the OTP sent to your email.', 201);
         } catch (Exception $e) {
             return $this->errorResponse('Registration failed: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Verify Email OTP
+     */
+    public function verifyEmail(VerifyEmailRequest $request): JsonResponse
+    {
+        try {
+            $user = auth('api')->user();
+            
+            if ($this->authService->verifyOtp($user, $request->otp)) {
+                return $this->successResponse($this->formatUser($user), 'Email verified successfully');
+            }
+
+            return $this->errorResponse('Invalid or expired OTP', 422);
+        } catch (Exception $e) {
+            return $this->errorResponse('Verification failed: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Resend Verification OTP
+     */
+    public function resendOtp(): JsonResponse
+    {
+        try {
+            $user = auth('api')->user();
+            
+            if ($user->hasVerifiedEmail()) {
+                return $this->errorResponse('Email already verified', 422);
+            }
+
+            $this->authService->resendOtp($user);
+            return $this->successResponse(null, 'Verification code resent to your email.');
+        } catch (Exception $e) {
+            return $this->errorResponse('Failed to resend OTP: ' . $e->getMessage(), 500);
         }
     }
 
@@ -48,6 +87,16 @@ class AuthController extends Controller
                 ? $this->respondWithToken($token, auth('api')->user(), 'Login successful')
                 : $this->errorResponse('Invalid credentials', 401);
         } catch (Exception $e) {
+            // Check if it's a verification error
+            if (str_contains($e->getMessage(), 'not verified')) {
+                // We still give a token so they can call the verify route
+                $user = User::where('email', $request->identity)
+                    ->orWhere('username', $request->identity)
+                    ->orWhere('phone', $request->identity)
+                    ->first();
+                $token = $this->authService->generateToken($user);
+                return $this->respondWithToken($token, $user, $e->getMessage(), 403);
+            }
             return $this->errorResponse('Login failed: ' . $e->getMessage(), 500);
         }
     }

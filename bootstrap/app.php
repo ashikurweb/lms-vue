@@ -4,6 +4,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Tymon\JWTAuth\Http\Middleware\Authenticate as JWTAuthenticate;
+use App\Http\Middleware\EnsureEmailIsVerifiedApi;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -15,7 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // added jwtAuthenticated
         $middleware->alias([
-            'auth.jwt' => JWTAuthenticate::class,
+            'auth.jwt'      => JWTAuthenticate::class,
+            'verified.api'  => EnsureEmailIsVerifiedApi::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

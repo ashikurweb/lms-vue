@@ -13,10 +13,16 @@ Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
 
-    // Protected Routes
+    // Protected Routes (JWT required)
     Route::middleware('auth.jwt')->group(function () {
-        Route::get('/me', [AuthController::class, 'me']);
-        Route::post('/logout', [AuthController::class, 'logout']);
-        Route::post('/refresh', [AuthController::class, 'refresh']);
+        Route::post('/verify-email', [AuthController::class, 'verifyEmail']);
+        Route::post('/resend-otp', [AuthController::class, 'resendOtp']);
+
+        // Routes that require verified email
+        Route::middleware('verified.api')->group(function () {
+            Route::get('/me', [AuthController::class, 'me']);
+            Route::post('/logout', [AuthController::class, 'logout']);
+            Route::post('/refresh', [AuthController::class, 'refresh']);
+        });
     });
 });
