@@ -1,0 +1,20 @@
+:root.dark {
+    --bg-main: #0b1120;
+    --bg-card: #111a2e;
+    --bg-sidebar: rgba(15, 23, 42, 0.5);
+    --bg-navbar: rgba(11, 17, 32, 0.8);
+    --bg-element: #1e293b;
+    --bg-hover: #334155;
+
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --text-dim: #64748b;
+
+    --border-main: rgba(30, 41, 59, 0.8);
+    --border-hover: rgba(51, 65, 85, 0.9);
+
+    --accent-primary: #6366f1;
+    --accent-secondary: #8b5cf6;
+    --shadow-main: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+    --shadow-hover: 0 25px 50px -12px rgb(0 0 0 / 0.5);
+}

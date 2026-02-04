@@ -1,10 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
 const routes = [
-    { 
-        path: '/', 
-        name: 'home',
-        component: () => import('../components/Home.vue') 
+    {
+        path: '/',
+        component: () => import('../layouts/DashboardLayout.vue'),
+        children: [
+            {
+                path: '',
+                name: 'home',
+                component: () => import('../components/Dashboard.vue')
+            }
+        ]
     }
 ];
 

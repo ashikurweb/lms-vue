@@ -33,7 +33,6 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index(['user_id', 'read_at']);
-            $table->index(['notifiable_type', 'notifiable_id']);
         });
 
         // Notification Preferences

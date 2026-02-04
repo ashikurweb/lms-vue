@@ -126,7 +126,6 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index(['user_id', 'event']);
-            $table->index(['subject_type', 'subject_id']);
             $table->index(['created_at']);
         });
 

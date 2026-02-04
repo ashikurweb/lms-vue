@@ -1,0 +1,76 @@
+/* Semantic Theme Classes */
+.theme-bg-main {
+    background-color: var(--bg-main);
+    transition: background-color 0.3s ease;
+}
+
+.theme-bg-card {
+    background-color: var(--bg-card);
+    transition: background-color 0.3s ease;
+}
+
+.theme-bg-sidebar {
+    background-color: var(--bg-sidebar);
+    transition: background-color 0.3s ease;
+}
+
+.theme-bg-navbar {
+    background-color: var(--bg-navbar);
+    transition: background-color 0.3s ease;
+}
+
+.theme-bg-element {
+    background-color: var(--bg-element);
+    transition: background-color 0.3s ease;
+}
+
+.theme-bg-hover:hover {
+    background-color: var(--bg-hover) !important;
+}
+
+.theme-text-main {
+    color: var(--text-main);
+    transition: color 0.3s ease;
+}
+
+.theme-text-muted {
+    color: var(--text-muted);
+    transition: color 0.3s ease;
+}
+
+.theme-text-dim {
+    color: var(--text-dim);
+    transition: color 0.3s ease;
+}
+
+.theme-border {
+    border-color: var(--border-main);
+    transition: border-color 0.3s ease;
+}
+
+.theme-border-hover:hover {
+    border-color: var(--border-hover);
+}
+
+.theme-shadow {
+    box-shadow: var(--shadow-main);
+}
+
+.theme-shadow-hover:hover {
+    box-shadow: var(--shadow-hover);
+}
+
+/* Bento Card Style */
+.bento-card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-main);
+    border-radius: 2rem;
+    padding: 2rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bento-card:hover {
+    border-color: var(--accent-primary);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-hover);
+}
