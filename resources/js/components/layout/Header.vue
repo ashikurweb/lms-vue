@@ -41,21 +41,94 @@
 
       <div class="h-8 w-px theme-border mx-2"></div>
 
-      <button class="flex items-center gap-2 p-1.5 theme-bg-hover rounded-xl transition-all group">
-         <div class="w-8 h-8 rounded-lg overflow-hidden border theme-border group-hover:border-indigo-500/30 transition-all">
-            <img src="https://ui-avatars.com/api/?name=Ashikur+Rahman&background=0b1120&color=fff" alt="User">
-         </div>
-         <span class="hidden sm:block text-xs font-bold theme-text-main group-hover:text-indigo-600 transition-colors uppercase tracking-wider">Profile</span>
-      </button>
+      <!-- Profile Dropdown -->
+      <div class="relative">
+        <button 
+          @click="isProfileOpen = !isProfileOpen"
+          class="flex items-center gap-2 p-1.5 theme-bg-hover rounded-xl transition-all group"
+          :class="{ 'theme-bg-element': isProfileOpen }"
+        >
+           <div class="w-8 h-8 rounded-lg overflow-hidden border theme-border group-hover:border-indigo-500/30 transition-all">
+              <img src="https://ui-avatars.com/api/?name=Ashikur+Rahman&background=0b1120&color=fff" alt="User">
+           </div>
+           <span class="hidden sm:block text-xs font-bold theme-text-main group-hover:text-indigo-600 transition-colors uppercase tracking-wider">Profile</span>
+           <svg 
+             class="w-4 h-4 theme-text-dim transition-transform duration-300"
+             :class="{ 'rotate-180': isProfileOpen }"
+             fill="none" viewBox="0 0 24 24" stroke="currentColor"
+           >
+             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+           </svg>
+        </button>
+
+        <!-- Dropdown Menu -->
+        <transition name="dropdown">
+          <div 
+            v-if="isProfileOpen"
+            class="absolute right-0 mt-3 w-64 theme-bg-card border theme-border rounded-[1.5rem] shadow-2xl py-3 z-50 overflow-hidden"
+          >
+            <div class="px-5 py-4 border-b theme-border mb-2">
+                <p class="text-sm font-black theme-text-main">Ashikur Rahman</p>
+                <p class="text-[10px] theme-text-dim font-bold uppercase tracking-widest mt-1">ashikur@nexus.com</p>
+            </div>
+            
+            <div class="px-2 space-y-1">
+                <button class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl theme-text-muted theme-bg-hover hover:theme-text-main group">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center group-hover:bg-indigo-500 group-hover:text-white transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    </div>
+                    <span class="text-sm font-bold">My Account</span>
+                </button>
+                <button class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl theme-text-muted theme-bg-hover hover:theme-text-main group">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-white transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    </div>
+                    <span class="text-sm font-bold">Privacy Settings</span>
+                </button>
+                <button class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl theme-text-muted theme-bg-hover hover:theme-text-main group">
+                    <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <span class="text-sm font-bold">Billing & Plans</span>
+                </button>
+            </div>
+
+            <div class="px-2 py-2 mt-2 border-t theme-border pt-3">
+                <button class="w-full flex items-center justify-start gap-3 px-4 py-2.5 bg-rose-500/10 hover:bg-rose-500 text-rose-600 hover:text-white rounded-xl transition-all group">
+                    <div class="w-8 h-8 rounded-lg bg-rose-500/20 flex items-center justify-center group-hover:bg-white group-hover:text-rose-500 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                    </div>
+                    <span class="text-xs font-black uppercase tracking-widest">Logout</span>
+                </button>
+            </div>
+          </div>
+        </transition>
+      </div>
     </div>
   </header>
 </template>
 
 <script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useTheme } from '../../composables/useTheme';
 import GlobalSearch from '../common/GlobalSearch.vue';
 
 const { theme, toggleTheme } = useTheme();
+const isProfileOpen = ref(false);
+
+const closeProfile = (e) => {
+    if (!e.target.closest('.relative')) {
+        isProfileOpen.value = false;
+    }
+};
+
+onMounted(() => {
+    window.addEventListener('click', closeProfile);
+});
+
+onUnmounted(() => {
+    window.removeEventListener('click', closeProfile);
+});
 
 defineEmits(['toggle-sidebar']);
 </script>
@@ -64,4 +137,8 @@ defineEmits(['toggle-sidebar']);
 .sun-moon-enter-active, .sun-moon-leave-active { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
 .sun-moon-enter-from { transform: translateY(30px) rotate(90deg); opacity: 0; }
 .sun-moon-leave-to { transform: translateY(-30px) rotate(-90deg); opacity: 0; }
+
+.dropdown-enter-active, .dropdown-leave-active { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+.dropdown-enter-from { opacity: 0; transform: translateY(10px) scale(0.95); }
+.dropdown-leave-to { opacity: 0; transform: translateY(10px) scale(0.95); }
 </style>
