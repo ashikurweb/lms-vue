@@ -31,7 +31,7 @@ class AuthService
         $data['password'] = Hash::make($data['password']);
         $data['status'] = 'pending';
         $data['otp'] = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-        $data['otp_expires_at'] = Carbon::now()->addMinutes(10);
+        $data['otp_expires_at'] = Carbon::now()->addSeconds(150);
 
         $user = User::create($data);
         $user->assignRole('user');
@@ -53,7 +53,7 @@ class AuthService
 
         $user->update([
             'otp' => str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT),
-            'otp_expires_at' => Carbon::now()->addMinutes(10),
+            'otp_expires_at' => Carbon::now()->addSeconds(150),
         ]);
 
         $user->notify(new PasswordResetOTP($user->otp));
@@ -113,7 +113,7 @@ class AuthService
     {
         $user->update([
             'otp' => str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT),
-            'otp_expires_at' => Carbon::now()->addMinutes(10),
+            'otp_expires_at' => Carbon::now()->addSeconds(150),
         ]);
 
         $user->notify(new VerifyEmailOTP($user->otp));
@@ -138,7 +138,7 @@ class AuthService
             // Generate OTP for 2FA login
             $user->update([
                 'otp' => str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT),
-                'otp_expires_at' => Carbon::now()->addMinutes(10),
+                'otp_expires_at' => Carbon::now()->addSeconds(150),
             ]);
             $user->notify(new VerifyEmailOTP($user->otp)); // Reuse verification template or create new one
             

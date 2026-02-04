@@ -43,6 +43,18 @@ const routes = [
                 meta: { guest: true }
             },
             {
+                path: 'forgot-password',
+                name: 'forgot-password',
+                component: () => import('../views/frontend/auth/ForgotPassword.vue'),
+                meta: { guest: true }
+            },
+            {
+                path: 'reset-password',
+                name: 'reset-password',
+                component: () => import('../views/frontend/auth/ResetPassword.vue'),
+                meta: { guest: true }
+            },
+            {
                 path: 'verify-email',
                 name: 'verify-email',
                 component: () => import('../views/frontend/auth/VerifyEmail.vue'),

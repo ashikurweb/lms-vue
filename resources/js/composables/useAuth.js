@@ -105,6 +105,42 @@ export function useAuth() {
         }
     };
 
+    const forgotPassword = async (email) => {
+        loading.value = true;
+        error.value = null;
+        try {
+            // Backend expects 'identity'
+            const response = await api.post('/auth/forgot-password', { identity: email });
+            return response.data;
+        } catch (err) {
+            error.value = err.response?.data?.message || 'Request failed';
+            throw err;
+        } finally {
+            loading.value = false;
+        }
+    };
+
+    const resetPassword = async (data) => {
+        loading.value = true;
+        error.value = null;
+        try {
+            // Backend expects identity, otp, password, password_confirmation
+            const payload = {
+                identity: data.email,
+                otp: data.token,
+                password: data.password,
+                password_confirmation: data.password_confirmation
+            };
+            const response = await api.post('/auth/reset-password', payload);
+            return response.data;
+        } catch (err) {
+            error.value = err.response?.data?.message || 'Reset failed';
+            throw err;
+        } finally {
+            loading.value = false;
+        }
+    };
+
     return {
         user,
         token,
@@ -115,6 +151,8 @@ export function useAuth() {
         register,
         logout,
         verifyEmail,
-        resendOtp
+        resendOtp,
+        forgotPassword,
+        resetPassword
     };
 }

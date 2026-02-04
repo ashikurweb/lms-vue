@@ -26,15 +26,17 @@
         @input="$emit('update:modelValue', $event.target.value)"
         :placeholder="placeholder"
         :required="required"
+        :disabled="disabled"
         :class="[
           'w-full py-6 rounded-2xl theme-bg-element border-2 theme-border outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm font-bold theme-text-main',
-          (icon || $slots.icon) ? 'pl-16 pr-12' : 'px-8'
+          (icon || $slots.icon) ? 'pl-16 pr-12' : 'px-8',
+          disabled ? 'opacity-60 cursor-not-allowed bg-slate-100/5' : ''
         ]"
       />
 
       <!-- Password Toggle -->
       <button 
-        v-if="type === 'password'" 
+        v-if="type === 'password' && !disabled" 
         type="button"
         @click="showPassword = !showPassword"
         class="absolute inset-y-0 right-6 flex items-center theme-text-dim hover:theme-text-main transition-colors"
@@ -68,6 +70,7 @@ const props = defineProps({
   label: String,
   placeholder: String,
   required: { type: Boolean, default: false },
+  disabled: { type: Boolean, default: false },
   icon: String,
   error: String,
   id: { type: String, default: () => `input-${Math.random().toString(36).substr(2, 9)}` }
