@@ -3,7 +3,7 @@
     <!-- Left Side: Immersive Visual -->
     <div class="hidden lg:flex w-1/2 relative items-center justify-center p-20 overflow-hidden bg-slate-950">
         <!-- Abstract Background -->
-        <div class="absolute inset-0 opacity-20 bg-grid-white/[0.05] [mask-image:radial-gradient(white,transparent_70%)]"></div>
+        <div class="absolute inset-0 opacity-20 bg-grid-white/[0.05] mask-[radial-gradient(white,transparent_70%)]"></div>
         <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-600/20 blur-[120px] rounded-full"></div>
         <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-violet-600/20 blur-[120px] rounded-full"></div>
 
@@ -24,7 +24,7 @@
 
             <!-- Perks Card -->
             <div class="reveal-up opacity-0 pt-10 space-y-4">
-                <div v-for="(perk, i) in perks" :key="i" class="flex items-center gap-6 p-6 rounded-3xl bg-white/[0.03] border border-white/10 backdrop-blur-3xl hover:bg-white/[0.05] transition-all">
+                <div v-for="(perk, i) in perks" :key="i" class="flex items-center gap-6 p-6 rounded-3xl bg-white/3 border border-white/10 backdrop-blur-3xl hover:bg-white/5 transition-all">
                     <div class="w-12 h-12 rounded-2xl bg-indigo-600/20 flex items-center justify-center text-indigo-400">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" v-html="perk.icon"></svg>
                     </div>
@@ -47,12 +47,7 @@
 
             <form @submit.prevent="handleRegister" class="reveal-up opacity-0 space-y-5">
                 <!-- Alert Message -->
-                <transition name="fade">
-                    <div v-if="error" class="p-5 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-bold flex gap-4">
-                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                        {{ error }}
-                    </div>
-                </transition>
+                <!-- Alert Message Replaced by Toast -->
 
                 <div class="space-y-5">
                     <FormInput 
@@ -161,8 +156,11 @@ import { useAuth } from '../../../composables/useAuth';
 import FormInput from '../../../components/common/FormInput.vue';
 import gsap from 'gsap';
 
+import { useToast } from '../../../composables/useToast';
+
 const router = useRouter();
-const { register, loading, error } = useAuth();
+const { register, loading, error: authError } = useAuth();
+const { success, error: toastError } = useToast();
 
 const form = reactive({
     name: '',
@@ -177,6 +175,7 @@ const handleRegister = async () => {
     try {
         const response = await register(form);
         if (response.status === 'success') {
+             success('Identity created! Please verify your email.');
              // Save token if it exists (automatically handled by composable now)
              router.push({ 
                 name: 'verify-email', 
@@ -184,6 +183,8 @@ const handleRegister = async () => {
              });
         }
     } catch (err) {
+        const message = authError.value || 'Registration failed';
+        toastError(message);
         console.error('Registration failed', err);
     }
 };

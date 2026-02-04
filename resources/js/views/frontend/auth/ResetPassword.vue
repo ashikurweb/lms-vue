@@ -42,20 +42,7 @@
             </div>
 
             <form @submit.prevent="handleSubmit" class="reveal-up opacity-0 space-y-6">
-                <!-- Alert Message -->
-                <transition name="fade">
-                    <div v-if="error" class="p-6 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-bold flex gap-4 items-start">
-                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                        {{ error }}
-                    </div>
-                </transition>
-                
-                 <transition name="fade">
-                    <div v-if="successMessage" class="p-6 rounded-2xl bg-green-500/10 border border-green-500/20 text-green-500 text-xs font-bold flex gap-4 items-start">
-                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                        {{ successMessage }}
-                    </div>
-                </transition>
+                <!-- Inline alerts replaced by Toast -->
 
                 <div class="space-y-6">
 
@@ -136,12 +123,14 @@
 import { ref, reactive, onMounted, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuth } from '../../../composables/useAuth';
+import { useToast } from '../../../composables/useToast';
 import FormInput from '../../../components/common/FormInput.vue';
 import gsap from 'gsap';
 
 const router = useRouter();
 const route = useRoute();
 const { resetPassword, forgotPassword, loading, error: authError } = useAuth();
+const { success, error: toastError } = useToast();
 
 const form = reactive({
     email: '',
@@ -150,10 +139,9 @@ const form = reactive({
     password_confirmation: ''
 });
 
-const error = ref(null);
-const successMessage = ref(null);
 const countdown = ref(30);
 let timer = null;
+const isResending = ref(false);
 
 const startTimer = () => {
     countdown.value = 60;
@@ -167,29 +155,25 @@ const startTimer = () => {
     }, 1000);
 };
 
-const isResending = ref(false);
-
 const handleResend = async () => {
     // Basic validation
     if (countdown.value > 0 || loading.value) return;
 
     // Check if we have the email to resend to
     if (!form.email) {
-        error.value = "Session expired or invalid link. Please try the 'Forgot Password' process again.";
+        toastError("Session expired or invalid link. Please try the 'Forgot Password' process again.");
         return;
     }
     
-    error.value = null;
-    successMessage.value = null;
     isResending.value = true;
     
     try {
         await forgotPassword(form.email);
-        successMessage.value = 'New code sent to your email.';
+        success('New code sent to your email.');
         startTimer();
     } catch (err) {
-        // Show error to user so they know why it failed
-        error.value = authError.value || "Failed to resend code. Please try again.";
+        const errorMsg = authError.value || "Failed to resend code. Please try again.";
+        toastError(errorMsg);
         console.error("Resend failed:", err);
     } finally {
         isResending.value = false;
@@ -222,22 +206,20 @@ onUnmounted(() => {
 });
 
 const handleSubmit = async () => {
-    error.value = null;
-    successMessage.value = null;
-
     if (form.password !== form.password_confirmation) {
-        error.value = "Passwords do not match.";
+        toastError("Passwords do not match.");
         return;
     }
 
     try {
         await resetPassword(form);
-        successMessage.value = 'Password reset successful! Redirecting to login...';
+        success('Password reset successful! Redirecting to login...');
         setTimeout(() => {
             router.push({ name: 'login' });
         }, 2000);
     } catch (err) {
-        error.value = authError.value || 'Failed to reset password.';
+        const errorMsg = authError.value || 'Failed to reset password.';
+        toastError(errorMsg);
     }
 };
 </script>

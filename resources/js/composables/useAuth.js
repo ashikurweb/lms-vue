@@ -1,6 +1,7 @@
 import { ref, computed } from 'vue';
 import api from '../services/api';
 import { useRouter } from 'vue-router';
+import { useToast } from './useToast';
 
 const user = ref(JSON.parse(localStorage.getItem('auth_user')) || null);
 const token = ref(localStorage.getItem('auth_token') || null);
@@ -58,11 +59,15 @@ export function useAuth() {
         }
     };
 
+    const { success, error: toastError } = useToast();
+
     const logout = async () => {
         try {
             await api.post('/auth/logout');
+            success('Logged out successfully');
         } catch (err) {
             console.error('Logout error', err);
+            // Optional: toastError('Logout encountered an issue');
         } finally {
             token.value = null;
             user.value = null;

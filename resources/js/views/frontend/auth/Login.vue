@@ -3,7 +3,7 @@
     <!-- Left Side: Immersive Visual -->
     <div class="hidden lg:flex w-1/2 relative items-center justify-center p-20 overflow-hidden bg-slate-950">
         <!-- Abstract Background -->
-        <div class="absolute inset-0 opacity-20 bg-grid-white/[0.05] [mask-image:radial-gradient(white,transparent_70%)]"></div>
+        <div class="absolute inset-0 opacity-20 bg-grid-white/[0.05] mask-[radial-gradient(white,transparent_70%)]"></div>
         <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-600/20 blur-[120px] rounded-full"></div>
         <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-violet-600/20 blur-[120px] rounded-full"></div>
 
@@ -25,7 +25,7 @@
 
             <!-- Dashboard Teaser Card -->
             <div class="reveal-up opacity-0 pt-10">
-                <div class="bg-white/[0.03] backdrop-blur-3xl border border-white/10 rounded-[3rem] p-8 shadow-2xl transform hover:rotate-2 transition-transform duration-700 group">
+                <div class="bg-white/3 backdrop-blur-3xl border border-white/10 rounded-[3rem] p-8 shadow-2xl transform hover:rotate-2 transition-transform duration-700 group">
                     <div class="flex items-center justify-between mb-8">
                         <div class="flex gap-2">
                              <div v-for="i in 3" :key="i" class="w-3 h-3 rounded-full" :class="['bg-red-500/50', 'bg-amber-500/50', 'bg-emerald-500/50'][i-1]"></div>
@@ -62,14 +62,6 @@
             </div>
 
             <form @submit.prevent="handleLogin" class="reveal-up opacity-0 space-y-6">
-                <!-- Alert Message -->
-                <transition name="fade">
-                    <div v-if="error" class="p-6 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-bold flex gap-4 items-start">
-                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                        {{ error }}
-                    </div>
-                </transition>
-
                 <div class="space-y-6">
                     <FormInput 
                         v-model="form.identity"
@@ -140,8 +132,11 @@ import { useAuth } from '../../../composables/useAuth';
 import FormInput from '../../../components/common/FormInput.vue';
 import gsap from 'gsap';
 
+import { useToast } from '../../../composables/useToast';
+
 const router = useRouter();
-const { login, loading, error } = useAuth();
+const { login, loading, error: authError } = useAuth(); // rename destructured error to avoid conflict
+const { success, error: toastError } = useToast();
 
 const form = reactive({
     identity: '',
@@ -153,6 +148,8 @@ const handleLogin = async () => {
         const response = await login(form);
         const userRoles = response.data?.user?.roles || [];
         
+        success('Welcome back! Session initialized.');
+
         // Check if user has admin/super-admin role
         const isAdmin = userRoles.some(role => ['admin', 'super-admin'].includes(role.name));
 
@@ -169,6 +166,11 @@ const handleLogin = async () => {
                 name: 'verify-email', 
                 query: { email: userEmail, reason: 'unverified' }
             });
+            toastError('Email not verified. Redirecting...');
+        } else {
+            // Use toast for other errors
+            const message = authError.value || 'Login failed';
+            toastError(message);
         }
         console.error('Login failed', err);
     }
