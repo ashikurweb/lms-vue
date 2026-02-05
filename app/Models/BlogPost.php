@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 use App\Traits\HasSlug;
 
 class BlogPost extends Model
@@ -16,6 +17,14 @@ class BlogPost extends Model
         return 'title';
     }
 
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     protected $fillable = [
         'uuid',
         'author_id',
@@ -25,7 +34,6 @@ class BlogPost extends Model
         'excerpt',
         'content',
         'featured_image',
-        'thumbnail',
         'video_url',
         'status',
         'is_featured',
@@ -41,7 +49,6 @@ class BlogPost extends Model
         'meta_keywords',
         'canonical_url',
         'published_at',
-        'scheduled_at',
         'meta',
     ];
 
@@ -55,7 +62,6 @@ class BlogPost extends Model
         'comments_count' => 'integer',
         'shares_count' => 'integer',
         'published_at' => 'datetime',
-        'scheduled_at' => 'datetime',
         'meta' => 'array',
     ];
 
@@ -66,6 +72,14 @@ class BlogPost extends Model
         static::creating(function ($post) {
             if (empty($post->uuid)) {
                 $post->uuid = (string) Str::uuid();
+            }
+        });
+
+        static::saving(function ($post) {
+            if ($post->content) {
+                $words = str_word_count(strip_tags($post->content));
+                $minutes = ceil($words / 200);
+                $post->reading_time = $minutes;
             }
         });
     }
@@ -126,6 +140,15 @@ class BlogPost extends Model
     public function scopeByAuthor($query, $authorId)
     {
         return $query->where('author_id', $authorId);
+    }
+
+    public function scopeSearch($query, $search)
+    {
+        return $query->where(function ($q) use ($search) {
+            $q->where('title', 'LIKE', "%{$search}%")
+                ->orWhere('excerpt', 'LIKE', "%{$search}%")
+                ->orWhere('content', 'LIKE', "%{$search}%");
+        });
     }
 
     // Methods

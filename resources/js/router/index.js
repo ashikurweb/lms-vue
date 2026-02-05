@@ -84,6 +84,8 @@ const routes = [
             { path: 'blog/categories', name: 'blog-categories', component: () => import('../views/admin/blog-categories/Index.vue') },
             { path: 'blog/tags', name: 'blog-tags', component: () => import('../views/admin/blog-tags/Index.vue') },
             { path: 'blog/posts', name: 'blog-posts', component: () => import('../views/admin/blog-posts/Index.vue') },
+            { path: 'blog/posts/create', name: 'blog-posts.create', component: () => import('../views/admin/blog-posts/Create.vue') },
+            { path: 'blog/posts/:slug/edit', name: 'blog-posts.edit', component: () => import('../views/admin/blog-posts/Edit.vue') },
             // Users
             { path: 'users', name: 'users', component: () => import('../views/admin/users/Index.vue') },
             { path: 'instructors', name: 'instructors', component: () => import('../views/admin/instructors/Index.vue') },

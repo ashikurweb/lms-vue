@@ -38,4 +38,7 @@ Route::middleware(['auth.jwt'])->prefix('admin')->group(function () {
 
     Route::get('/blog-tags/all', [\App\Http\Controllers\Api\Admin\BlogTagController::class, 'getAll']);
     Route::apiResource('blog-tags', \App\Http\Controllers\Api\Admin\BlogTagController::class);
+
+    Route::apiResource('blog-posts', \App\Http\Controllers\Api\Admin\BlogPostController::class);
+    Route::post('upload-image', [\App\Http\Controllers\Api\Admin\UploadController::class, 'uploadImage']);
 });

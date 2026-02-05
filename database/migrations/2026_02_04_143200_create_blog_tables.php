@@ -50,11 +50,10 @@ return new class extends Migration
             
             // Media
             $table->string('featured_image')->nullable();
-            $table->string('thumbnail')->nullable();
             $table->string('video_url')->nullable();
             
             // Settings
-            $table->enum('status', ['draft', 'pending', 'published', 'scheduled', 'archived'])->default('draft');
+            $table->enum('status', ['draft', 'pending', 'published', 'archived'])->default('published');
             $table->boolean('is_featured')->default(false);
             $table->boolean('is_pinned')->default(false);
             $table->boolean('allow_comments')->default(true);
@@ -74,7 +73,6 @@ return new class extends Migration
             
             // Scheduling
             $table->timestamp('published_at')->nullable();
-            $table->timestamp('scheduled_at')->nullable();
             
             $table->json('meta')->nullable();
             $table->timestamps();

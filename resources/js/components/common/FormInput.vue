@@ -3,6 +3,7 @@
     <div v-if="label" class="flex items-center justify-between ml-2">
       <label :for="id" class="text-[10px] font-black theme-text-dim uppercase tracking-[0.2em] pointer-events-none">
         {{ label }}
+        <span v-if="required" class="text-rose-500 ml-0.5">*</span>
       </label>
       <slot name="label-right"></slot>
     </div>
@@ -91,4 +92,26 @@ const inputType = computed(() => {
 <style scoped>
 .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
+
+/* Date Picker Premium Styles */
+input[type="datetime-local"] {
+  accent-color: #6366f1; /* Indigo-500 to match theme */
+}
+
+/* Move the calendar icon to the left and make it look professional */
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  left: 20px;
+  cursor: pointer;
+  padding: 10px;
+  margin: 0;
+  width: 20px;
+  height: 20px;
+  z-index: 10;
+}
+
+input[type="datetime-local"] {
+  padding-left: 60px !important;
+  position: relative;
+}
 </style>
