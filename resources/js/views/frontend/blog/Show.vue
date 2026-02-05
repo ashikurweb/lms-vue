@@ -186,27 +186,6 @@
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
             Share article
           </button>
-          <button class="inline-flex items-center gap-2 px-6 py-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
-            Bookmark
-          </button>
-        </div>
-
-        <!-- Author Box -->
-        <div class="mt-12 p-8 bg-white dark:bg-[#111113] rounded-3xl border border-slate-200/80 dark:border-slate-800/80">
-          <div class="flex flex-col sm:flex-row items-center gap-6">
-            <img :src="post.author?.avatar || `https://ui-avatars.com/api/?name=${post.author?.name}&background=6366f1&color=fff&size=128`" class="w-20 h-20 rounded-2xl shadow-lg">
-            <div class="flex-1 text-center sm:text-left">
-              <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-1">{{ post.author?.name }}</h3>
-              <p class="text-sm text-violet-600 dark:text-violet-400 font-medium mb-3">Content Creator</p>
-              <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
-                Sharing insights on technology, design, and development. Follow along for weekly updates and in-depth tutorials.
-              </p>
-            </div>
-            <button class="px-6 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-semibold rounded-full hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors shrink-0">
-              Follow
-            </button>
-          </div>
         </div>
 
         <!-- Comments Section -->
@@ -251,54 +230,10 @@
                    Be the first to share your thoughts on this article.
                 </div>
                 
-                <div v-for="comment in post.comments" :key="comment.id" class="flex gap-4 group">
-                    <img :src="comment.author?.avatar || `https://ui-avatars.com/api/?name=${comment.author?.name}&background=random`" class="w-10 h-10 rounded-full shadow-sm shrink-0">
-                    <div class="flex-1">
-                        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/50 rounded-2xl p-4">
-                            <div class="flex items-center justify-between mb-2">
-                                <h4 class="font-bold text-slate-900 dark:text-white text-sm">{{ comment.author?.name }}</h4>
-                                <span class="text-xs text-slate-400">{{ formatDate(comment.created_at) }}</span>
-                            </div>
-                            <p class="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">{{ comment.content }}</p>
-                        </div>
-                        
-                        <div class="flex items-center gap-4 mt-2 pl-2">
-                             <button @click="replyingTo = replyingTo === comment.id ? null : comment.id" class="text-xs font-semibold text-slate-500 hover:text-violet-600 transition-colors">Reply</button>
-                        </div>
-
-                        <!-- Reply Form -->
-                        <div v-if="replyingTo === comment.id" class="mt-4 flex gap-3 animate-in fade-in slide-in-from-top-2">
-                             <div class="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800 shrink-0"></div> <!-- Placeholder for current user avatar in reply -->
-                             <div class="flex-1">
-                                 <textarea 
-                                     v-model="replyContent"
-                                     placeholder="Write a reply..."
-                                     class="w-full p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/50 min-h-[80px]"
-                                 ></textarea>
-                                 <div class="mt-2 flex justify-end gap-2">
-                                     <button @click="replyingTo = null" class="px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">Cancel</button>
-                                     <button @click="submitReply(comment.id)" class="px-4 py-1.5 bg-violet-600 text-white text-xs font-bold rounded-lg hover:bg-violet-700">Reply</button>
-                                 </div>
-                             </div>
-                        </div>
-
-                        <!-- Replies List -->
-                        <div v-if="comment.replies?.length" class="mt-4 space-y-4 pl-4 border-l-2 border-slate-100 dark:border-slate-800">
-                            <div v-for="reply in comment.replies" :key="reply.id" class="flex gap-3">
-                                <img :src="reply.author?.avatar || `https://ui-avatars.com/api/?name=${reply.author?.name}&background=random`" class="w-8 h-8 rounded-full shadow-sm shrink-0">
-                                <div class="flex-1">
-                                     <div class="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-3">
-                                         <div class="flex items-center justify-between mb-1">
-                                             <h5 class="font-bold text-slate-900 dark:text-white text-xs">{{ reply.author?.name }}</h5>
-                                             <span class="text-[10px] text-slate-400">{{ formatDate(reply.created_at) }}</span>
-                                         </div>
-                                         <p class="text-slate-600 dark:text-slate-400 text-sm">{{ reply.content }}</p>
-                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <!-- Comments with recursive rendering -->
+                <template v-for="comment in post.comments" :key="comment.id">
+                    <CommentItem :comment="comment" :depth="0" />
+                </template>
             </div>
           </div>
           <div v-else class="bg-slate-50 dark:bg-[#111113] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 p-8 text-center">
@@ -329,11 +264,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch, computed } from 'vue';
+import { ref, onMounted, onUnmounted, watch, computed, provide } from 'vue';
 import { useRoute } from 'vue-router';
 import { publicBlogService } from '../../../services/publicBlogService';
 import { useAuth } from '../../../composables/useAuth';
 import { useToast } from '../../../composables/useToast';
+import CommentItem from '../../../components/ui/CommentItem.vue';
 
 const route = useRoute();
 const auth = useAuth();
@@ -349,6 +285,24 @@ const replyContent = ref('');
 
 const user = computed(() => auth.user.value);
 const isAuthenticated = computed(() => auth.isAuthenticated.value);
+
+const handleCommentReply = (replyData) => {
+  if (replyData === null) {
+    // Close reply form
+    replyingTo.value = null;
+    replyContent.value = '';
+  } else if (typeof replyData === 'number' || typeof replyData === 'string') {
+    // Open reply form for specific comment
+    replyingTo.value = replyData;
+  } else {
+    // Submit reply
+    submitReplyToComment(replyData.parentId, replyData.content);
+  }
+};
+
+// Provide methods to child components
+provide('handleCommentReply', handleCommentReply);
+provide('replyingTo', replyingTo);
 
 const fetchPost = async () => {
   loading.value = true;
@@ -486,25 +440,87 @@ const submitReply = async (commentId) => {
       parent_id: commentId
     });
 
-    // Find parent comment and add reply
-    const parentComment = post.value.comments.find(c => c.id === commentId);
-    if (parentComment) {
-       if (!parentComment.replies) parentComment.replies = [];
-       // Structure reply object
-       const replyObj = {
-         ...response.data,
-         author: {
-            name: user.value.name,
-            avatar: user.value.avatar
-         },
-         created_at: new Date().toISOString()
-       };
-       parentComment.replies.push(replyObj);
-       post.value.comments_count++;
-    }
+    // Function to find and add reply to nested comment structure
+    const addReplyToComment = (comments, targetId) => {
+      for (let comment of comments) {
+        if (comment.id === targetId) {
+          if (!comment.replies) comment.replies = [];
+          const replyObj = {
+            ...response.data,
+            author: {
+              name: user.value.name,
+              avatar: user.value.avatar
+            },
+            created_at: new Date().toISOString()
+          };
+          comment.replies.push(replyObj);
+          post.value.comments_count++;
+          return true;
+        }
+        if (comment.replies && comment.replies.length > 0) {
+          if (addReplyToComment(comment.replies, targetId)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    };
 
+    // Add reply to the correct comment (main comment or nested reply)
+    addReplyToComment(post.value.comments, commentId);
+
+    // Clear the reply field and close reply form
     replyingTo.value = null;
     replyContent.value = '';
+    toast.success('Reply posted successfully');
+  } catch (error) {
+    toast.error('Failed to post reply');
+  }
+};
+
+const submitReplyToComment = async (commentId, content) => {
+  if (!isAuthenticated.value) {
+    toast.error('Please login to reply');
+    return;
+  }
+
+  try {
+    const response = await publicBlogService.commentOnPost(post.value.slug, {
+      content: content,
+      parent_id: commentId
+    });
+
+    // Function to find and add reply to nested comment structure
+    const addReplyToComment = (comments, targetId) => {
+      for (let comment of comments) {
+        if (comment.id === targetId) {
+          if (!comment.replies) comment.replies = [];
+          const replyObj = {
+            ...response.data,
+            author: {
+              name: user.value.name,
+              avatar: user.value.avatar
+            },
+            created_at: new Date().toISOString()
+          };
+          comment.replies.push(replyObj);
+          post.value.comments_count++;
+          return true;
+        }
+        if (comment.replies && comment.replies.length > 0) {
+          if (addReplyToComment(comment.replies, targetId)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+
+    // Add reply to the correct comment
+    addReplyToComment(post.value.comments, commentId);
+
+    // Close reply form
+    replyingTo.value = null;
     toast.success('Reply posted successfully');
   } catch (error) {
     toast.error('Failed to post reply');
