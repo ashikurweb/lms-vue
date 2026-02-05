@@ -32,15 +32,16 @@
     <!-- Main Table Area -->
     <div class="relative min-h-[400px]">
       <!-- Column Headers -->
-      <div class="grid grid-cols-12 gap-4 px-8 py-4 mb-4 theme-table-header rounded-2xl shadow-sm overflow-hidden relative group/header">
-        <div class="absolute inset-x-0 bottom-0 h-px bg-linear-to-r from-transparent via-indigo-500/30 to-transparent"></div>
-        <div class="col-span-1 text-[10px] font-black theme-table-header-text uppercase tracking-[0.2em]">SL</div>
-        <div class="col-span-4 text-[10px] font-black theme-table-header-text uppercase tracking-[0.2em]">Article Details</div>
-        <div class="col-span-2 text-[10px] font-black theme-table-header-text uppercase tracking-[0.2em]">Author & Date</div>
-        <div class="col-span-2 text-[10px] font-black theme-table-header-text uppercase tracking-[0.2em] text-center">Status</div>
-        <div class="col-span-1 text-[10px] font-black theme-table-header-text uppercase tracking-[0.2em] text-center">Featured</div>
-        <div class="col-span-2 text-[10px] font-black theme-table-header-text uppercase tracking-[0.2em] text-right">Actions</div>
-      </div>
+      <!-- Table Head -->
+        <div class="grid grid-cols-12 gap-4 px-8 py-4 theme-text-dim text-[10px] font-black uppercase tracking-widest pl-12">
+          <div class="col-span-1">SL</div>
+          <div class="col-span-3">Details</div>
+          <div class="col-span-2">Stats</div>
+          <div class="col-span-2">Author</div>
+          <div class="col-span-1 text-center">Status</div>
+          <div class="col-span-1 text-center">Feat</div>
+          <div class="col-span-2 text-right pr-4">Actions</div>
+        </div>
 
       <!-- Loading State -->
       <div v-if="loading" class="flex items-center justify-center py-32 theme-bg-card border theme-border rounded-[2.5rem] shadow-sm">
@@ -68,7 +69,7 @@
             </div>
 
             <!-- Details -->
-            <div class="col-span-4">
+            <div class="col-span-3">
               <div class="flex items-center gap-4">
                 <div class="relative w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 border theme-border bg-slate-100 dark:bg-slate-800">
                    <img 
@@ -93,6 +94,34 @@
               </div>
             </div>
 
+            <!-- Stats -->
+            <div class="col-span-2">
+              <div class="flex items-center gap-2">
+                <!-- Views -->
+                <div 
+                  class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/50 group/stats hover:border-indigo-500/30 transition-colors"
+                  title="Total Views"
+                >
+                  <svg class="w-3.5 h-3.5 text-slate-400 group-hover/stats:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                  <span class="text-xs font-bold theme-text-main">{{ formatNumber(post.views_count) }}</span>
+                </div>
+
+                <!-- Engagement -->
+                <div class="flex items-center gap-3 pl-3 border-l border-slate-200 dark:border-slate-700/50">
+                  <!-- Likes -->
+                  <div class="flex items-center gap-1" title="Likes">
+                    <svg class="w-3.5 h-3.5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+                    <span class="text-xs font-semibold theme-text-muted">{{ formatNumber(post.likes_count) }}</span>
+                  </div>
+                  <!-- Comments -->
+                  <div class="flex items-center gap-1" title="Comments">
+                    <svg class="w-3.5 h-3.5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                    <span class="text-xs font-semibold theme-text-muted">{{ formatNumber(post.comments_count) }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <!-- Author & Date -->
             <div class="col-span-2">
               <div class="flex flex-col">
@@ -102,7 +131,7 @@
             </div>
 
             <!-- Status -->
-            <div class="col-span-2 text-center">
+            <div class="col-span-1 text-center">
               <span 
                 class="inline-flex px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest"
                 :class="{
@@ -190,7 +219,7 @@ import Pagination from '../../../components/common/Pagination.vue';
 import SkeletonLoader from '../../../components/common/SkeletonLoader.vue';
 import EmptyState from '../../../components/common/EmptyState.vue';
 import { useToast } from '../../../composables/useToast';
-import { formatDate } from '../../../utils/helpers';
+import { formatDate, formatNumber } from '../../../utils/helpers';
 
 const toast = useToast();
 const posts = ref([]);

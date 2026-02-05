@@ -1,220 +1,314 @@
 <template>
-  <div class="min-h-screen">
-    <!-- Progress Bar -->
-    <div class="fixed top-0 left-0 w-full h-1 z-[150] pointer-events-none">
-      <div 
-        class="h-full bg-indigo-600 transition-all duration-150 ease-out"
-        :style="{ width: `${scrollProgress}%` }"
-      ></div>
+  <div class="min-h-screen bg-[#fafafa] dark:bg-[#0a0a0b] transition-colors duration-500">
+    
+    <!-- Loading State -->
+    <div v-if="loading" class="min-h-screen flex items-center justify-center">
+      <div class="text-center">
+        <div class="w-12 h-12 border-2 border-violet-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <p class="text-sm font-medium text-slate-400">Loading article...</p>
+      </div>
     </div>
 
-    <!-- Article Header -->
-    <header class="relative pt-40 pb-20 overflow-hidden">
-      <!-- Background Elements -->
-      <div class="absolute inset-0 pointer-events-none -z-10 bg-dot-pattern opacity-30"></div>
-      <div class="absolute top-0 right-0 w-[40%] h-full bg-linear-to-l from-indigo-600/10 to-transparent blur-[100px] -z-10"></div>
-      
-      <div class="max-w-5xl mx-auto px-8 md:px-16 text-center space-y-8">
-        <div class="flex items-center justify-center gap-4">
-          <router-link to="/blog" class="text-[10px] font-black theme-text-dim hover:theme-text-main uppercase tracking-[0.4em] transition-colors flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M7 16l-4-4m0 0l4-4m-4 4h18"/></svg>
-            Back to Journal
+    <template v-else-if="post">
+      <!-- Scroll Progress -->
+      <div class="fixed top-0 left-0 w-full h-1 z-50 bg-slate-200/50 dark:bg-slate-800/50">
+        <div class="h-full bg-gradient-to-r from-violet-500 to-fuchsia-500 transition-all duration-150 ease-out" :style="{ width: `${scrollProgress}%` }"></div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="sticky top-0 z-40 bg-white/95 dark:bg-[#0a0a0b]/95 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800">
+        <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+          <router-link to="/blog" class="inline-flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-violet-600 dark:hover:text-violet-400 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+            Back to Blog
           </router-link>
-          <span class="theme-text-muted">/</span>
-          <span class="text-[10px] font-black text-indigo-600 uppercase tracking-[0.4em]">{{ post.category }}</span>
+          
+          <div class="flex items-center gap-3">
+            <button class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors" title="Share">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+            </button>
+            <button class="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors" title="Bookmark">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
+            </button>
+          </div>
         </div>
+      </nav>
 
-        <h1 class="text-5xl md:text-7xl lg:text-8xl font-black theme-text-main tracking-tighter leading-[0.95]">
-          {{ post.title }}
-        </h1>
+      <!-- Article Header -->
+      <header class="pt-24 pb-12 px-6">
+        <div class="max-w-3xl mx-auto text-center">
+          <!-- Category & Meta -->
+          <div class="flex flex-wrap items-center justify-center gap-3 mb-8">
+            <span class="inline-flex items-center px-3 py-1.5 bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400 text-xs font-semibold rounded-full">
+              {{ post.category?.name || 'Article' }}
+            </span>
+            <span v-if="post.is_featured" class="inline-flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold rounded-full">
+              <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+              Featured
+            </span>
+            <span v-if="post.is_pinned" class="inline-flex items-center gap-1 px-3 py-1.5 bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 text-xs font-semibold rounded-full">
+              <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 3.636a1 1 0 010 1.414 7 7 0 000 9.9 1 1 0 11-1.414 1.414 9 9 0 010-12.728 1 1 0 011.414 0zm9.9 0a1 1 0 011.414 0 9 9 0 010 12.728 1 1 0 11-1.414-1.414 7 7 0 000-9.9 1 1 0 010-1.414zM7.879 6.464a1 1 0 010 1.414 3 3 0 000 4.243 1 1 0 11-1.415 1.414 5 5 0 010-7.07 1 1 0 011.415 0zm4.242 0a1 1 0 011.415 0 5 5 0 010 7.072 1 1 0 01-1.415-1.415 3 3 0 000-4.242 1 1 0 010-1.415zM10 9a1 1 0 011 1v.01a1 1 0 11-2 0V10a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+              Pinned
+            </span>
+          </div>
+          
+          <!-- Title -->
+          <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white leading-tight tracking-tight mb-8">
+            {{ post.title }}
+          </h1>
 
-        <div class="flex flex-col md:flex-row items-center justify-center gap-6 pt-6">
-          <div class="flex items-center gap-4">
-            <img :src="post.author.avatar" class="w-12 h-12 rounded-2xl border-2 theme-border object-cover">
-            <div class="text-left">
-              <p class="text-sm font-black theme-text-main">By {{ post.author.name }}</p>
-              <p class="text-[10px] font-bold theme-text-dim uppercase tracking-widest">{{ post.author.role }}</p>
+          <!-- Author & Meta -->
+          <div class="flex flex-wrap items-center justify-center gap-6 text-sm text-slate-500 dark:text-slate-400">
+            <div class="flex items-center gap-3">
+              <img :src="post.author?.avatar || `https://ui-avatars.com/api/?name=${post.author?.name}&background=6366f1&color=fff`" class="w-10 h-10 rounded-full ring-2 ring-white dark:ring-slate-800 shadow-md">
+              <div class="text-left">
+                <p class="font-semibold text-slate-900 dark:text-white">{{ post.author?.name }}</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Author</p>
+              </div>
             </div>
-          </div>
-          <div class="hidden md:block w-px h-8 theme-border border-l"></div>
-          <div class="flex items-center gap-8 text-[10px] font-black theme-text-dim uppercase tracking-[0.2em]">
-            <span class="flex items-center gap-2">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z"/></svg>
-              {{ post.date }}
-            </span>
-            <span class="flex items-center gap-2">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              {{ post.readTime }} read
-            </span>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <!-- Featured Image -->
-    <section class="max-w-[1400px] mx-auto px-8 md:px-16 pb-20">
-      <div class="relative rounded-[4rem] overflow-hidden border-4 theme-border shadow-4xl aspect-video lg:aspect-21/9">
-        <img :src="post.image" class="w-full h-full object-cover grayscale-[0.3] hover:grayscale-0 transition-all duration-[2s]">
-        <div class="absolute inset-0 bg-linear-to-t from-black/20 via-transparent to-transparent"></div>
-      </div>
-    </section>
-
-    <!-- Post Content & Sidebar -->
-    <section class="max-w-7xl mx-auto px-8 md:px-16 pb-40">
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-20">
-        <!-- Main Content -->
-        <article class="lg:col-span-8 space-y-12">
-          <div class="prose prose-xl dark:prose-invert prose-indigo max-w-none">
-            <p class="text-2xl font-medium leading-relaxed theme-text-main italic border-l-4 border-indigo-600 pl-8 mb-12">
-              {{ post.excerpt }}
-            </p>
-            
-            <div class="theme-text-main leading-relaxed space-y-8 text-lg md:text-xl font-medium" v-html="post.content"></div>
-          </div>
-
-          <!-- Tags & Share -->
-          <div class="pt-12 border-t theme-border flex flex-col md:flex-row items-center justify-between gap-8">
-            <div class="flex flex-wrap gap-3">
-              <span 
-                v-for="tag in post.tags" 
-                :key="tag"
-                class="px-4 py-2 rounded-xl theme-bg-card border theme-border theme-text-dim text-[10px] font-black uppercase tracking-widest hover:border-indigo-500/50 hover:theme-text-main transition-all cursor-pointer"
-              >
-                #{{ tag }}
+            <div class="flex items-center gap-4 text-slate-400 dark:text-slate-500">
+              <span class="flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                {{ formatDate(post.published_at) }}
+              </span>
+              <span class="flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                {{ post.reading_time }} min read
               </span>
             </div>
-            
-            <div class="flex items-center gap-4">
-              <span class="text-[10px] font-black theme-text-dim uppercase tracking-widest">Share Protocol:</span>
-              <div class="flex gap-2">
-                <button v-for="i in 3" :key="i" class="w-10 h-10 rounded-xl theme-bg-element border theme-border flex items-center justify-center hover:bg-indigo-600 hover:text-white transition-all">
-                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg>
-                </button>
-              </div>
-            </div>
           </div>
-
-          <!-- Author Box -->
-          <div class="mt-20 p-10 md:p-16 rounded-[3rem] theme-bg-card border-2 theme-border relative overflow-hidden group">
-            <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-600/5 blur-[50px] -z-10 group-hover:bg-indigo-600/10 transition-all"></div>
-            <div class="flex flex-col md:flex-row items-center gap-10">
-              <div class="relative">
-                <div class="absolute inset-0 bg-indigo-600 rounded-3xl rotate-6 opacity-20 group-hover:rotate-12 transition-transform"></div>
-                <img :src="post.author.avatar" class="relative w-32 h-32 rounded-3xl border-4 theme-border object-cover shadow-2xl">
+        </div>
+      </header>
+      <!-- Video Section (with YouTube Thumbnail) -->
+      <div v-if="post.video_url" class="max-w-5xl mx-auto px-6 mb-12">
+        <div class="relative rounded-3xl overflow-hidden shadow-2xl shadow-slate-500/10 dark:shadow-none ring-1 ring-slate-200 dark:ring-slate-800">
+          <div class="aspect-video relative">
+            <!-- YouTube Thumbnail -->
+            <img 
+              :src="getYouTubeThumbnail(post.video_url)"
+              class="absolute inset-0 w-full h-full object-cover"
+            >
+            <!-- Dark Overlay -->
+            <div class="absolute inset-0 bg-black/30"></div>
+            <!-- Play Button -->
+            <a 
+              :href="post.video_url" 
+              target="_blank"
+              class="absolute inset-0 flex flex-col items-center justify-center group"
+            >
+              <div class="w-20 h-20 md:w-24 md:h-24 rounded-full bg-red-600 flex items-center justify-center shadow-2xl group-hover:scale-110 group-hover:bg-red-500 transition-all">
+                <svg class="w-10 h-10 md:w-12 md:h-12 text-white ml-1" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
               </div>
-              <div class="flex-1 space-y-4 text-center md:text-left">
-                <div class="space-y-1">
-                  <h4 class="text-2xl font-black theme-text-main tracking-tight">Written by {{ post.author.name }}</h4>
-                  <p class="text-[10px] font-black text-indigo-600 uppercase tracking-[0.4em]">{{ post.author.role }}</p>
-                </div>
-                <p class="theme-text-dim text-lg leading-relaxed italic">"Helena is a Distinguished Architect with 15+ years of experience in designing high-availability distributed systems for global financial networks."</p>
-                <div class="flex items-center justify-center md:justify-start gap-4 pt-2">
-                  <button v-for="i in 3" :key="i" class="text-xs font-black theme-text-main uppercase tracking-widest hover:text-indigo-600 transition-colors">Twitter</button>
-                </div>
-              </div>
-            </div>
+              <span class="mt-4 text-white font-bold text-lg tracking-wide drop-shadow-lg">Watch on YouTube</span>
+            </a>
           </div>
-        </article>
-
-        <!-- Sidebar -->
-        <aside class="lg:col-span-4 space-y-16">
-          <!-- Table of Contents (Simulated) -->
-          <div class="p-10 rounded-[2.5rem] theme-bg-card border-2 theme-border space-y-8 sticky top-32">
-            <h5 class="text-xs font-black theme-text-main uppercase tracking-[0.4em] border-b theme-border pb-4">On this page</h5>
-            <nav class="space-y-4">
-              <a v-for="i in 4" :key="i" href="#" class="block text-sm font-bold theme-text-dim hover:theme-text-main hover:translate-x-2 transition-all">
-                0{{ i }}. {{ ['Foundation Core', 'Scaling Logic', 'Consistency Nodes', 'Production Benchmarks'][i-1] }}
-              </a>
-            </nav>
-
-            <div class="pt-8 border-t theme-border space-y-6">
-              <h5 class="text-xs font-black theme-text-main uppercase tracking-[0.4em]">Get more Intel</h5>
-              <div class="relative">
-                <input type="email" placeholder="Email for Protocol Updates" class="w-full px-6 py-4 rounded-xl theme-bg-element border theme-border theme-text-main text-xs focus:ring-2 focus:ring-indigo-500 outline-none">
-                <button class="absolute right-2 top-2 bottom-2 px-4 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-all">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5-5 5"/></svg>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Related Posts -->
-          <div class="space-y-8">
-            <h5 class="text-xs font-black theme-text-main uppercase tracking-[0.4em] px-4">Related Intel</h5>
-            <div class="space-y-6">
-              <router-link 
-                v-for="i in 3" 
-                :key="i"
-                to="/blog/next-post"
-                class="group flex gap-6 p-4 rounded-3xl hover:theme-bg-hover transition-all"
-              >
-                <div class="w-24 h-24 shrink-0 rounded-2xl overflow-hidden border theme-border">
-                  <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc51?auto=format&fit=crop&q=80&w=200" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all">
-                </div>
-                <div class="space-y-2">
-                  <h6 class="text-sm font-black theme-text-main leading-tight group-hover:text-indigo-600 transition-colors">Quantum Logic in Micro-Services</h6>
-                  <p class="text-[9px] font-bold theme-text-dim uppercase tracking-widest">Digital Architect · 5 min</p>
-                </div>
-              </router-link>
-            </div>
-          </div>
-        </aside>
-      </div>
-    </section>
-
-    <!-- Bottom Newsletter CTA -->
-    <section class="max-w-[1600px] mx-auto px-8 md:px-16 pb-40">
-      <div class="relative p-16 md:p-24 rounded-[4rem] bg-indigo-600 text-white overflow-hidden text-center space-y-10 shadow-4xl shadow-indigo-600/30">
-        <div class="absolute inset-0 bg-dot-pattern opacity-10"></div>
-        <h2 class="text-5xl md:text-7xl font-black tracking-tighter leading-[0.9]">Never Miss a <br /> Technical Breakthrough.</h2>
-        <p class="text-indigo-100/70 text-xl font-medium max-w-2xl mx-auto">Join 50,000+ engineers receiving weekly deep-dives into the latest architecture patterns.</p>
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-6 pt-6">
-          <input type="email" placeholder="Enter your engineering email" class="w-full sm:w-96 px-10 py-6 rounded-2xl bg-white/10 border-2 border-white/20 text-white placeholder:text-white/40 focus:bg-white/20 outline-none transition-all text-xl font-bold">
-          <button class="w-full sm:w-auto px-12 py-6 bg-white text-indigo-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 active:scale-95 transition-all">Enable Broadcast</button>
         </div>
       </div>
-    </section>
+
+      <!-- Stats Bar -->
+      <div class="max-w-3xl mx-auto px-6 mb-12">
+        <div class="flex flex-wrap items-center justify-center gap-6 py-4 px-6 bg-white dark:bg-[#111113] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm">
+          <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            <span class="font-semibold">{{ formatNumber(post.views_count) }}</span> views
+          </div>
+          <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+            <svg class="w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+            <span class="font-semibold">{{ formatNumber(post.likes_count) }}</span> likes
+          </div>
+          <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+            <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+            <span class="font-semibold">{{ formatNumber(post.comments_count) }}</span> comments
+          </div>
+          <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+            <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+            <span class="font-semibold">{{ formatNumber(post.shares_count) }}</span> shares
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <main class="max-w-3xl mx-auto px-6">
+        <!-- Excerpt -->
+        <div class="relative p-6 bg-gradient-to-r from-violet-50 to-fuchsia-50 dark:from-violet-500/5 dark:to-fuchsia-500/5 rounded-2xl border border-violet-100 dark:border-violet-500/20 mb-12">
+          <div class="absolute -left-3 top-6 w-1.5 h-12 bg-gradient-to-b from-violet-500 to-fuchsia-500 rounded-full"></div>
+          <p class="text-lg md:text-xl text-slate-700 dark:text-slate-300 leading-relaxed font-medium italic">
+            "{{ post.excerpt }}"
+          </p>
+        </div>
+
+        <!-- Article Content -->
+        <article class="prose prose-lg prose-slate dark:prose-invert max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-p:leading-relaxed prose-a:text-violet-600 dark:prose-a:text-violet-400 prose-img:rounded-2xl prose-img:shadow-lg">
+          <div v-html="post.content"></div>
+        </article>
+
+        <!-- Featured Image (above Topics) -->
+        <div v-if="post.featured_image" class="mt-16 pt-8 border-t border-slate-200 dark:border-slate-800">
+          <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">Featured Image</h3>
+          <div class="rounded-2xl overflow-hidden shadow-lg ring-1 ring-slate-200 dark:ring-slate-800">
+            <img 
+              :src="post.featured_image"
+              class="w-full object-cover"
+            >
+          </div>
+        </div>
+
+        <!-- Tags -->
+        <div v-if="post.tags && post.tags.length" class="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800">
+          <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4">Topics</h3>
+          <div class="flex flex-wrap gap-2">
+            <span 
+              v-for="tag in post.tags" 
+              :key="tag.id" 
+              class="inline-flex items-center px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-medium rounded-full hover:bg-violet-50 dark:hover:bg-violet-500/10 hover:text-violet-600 dark:hover:text-violet-400 cursor-pointer transition-colors"
+            >
+              #{{ tag.name }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-wrap items-center justify-center gap-4 mt-12 py-8 border-t border-b border-slate-200 dark:border-slate-800">
+          <button class="inline-flex items-center gap-2 px-6 py-3 bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 text-sm font-semibold rounded-full hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+            Like this article
+          </button>
+          <button class="inline-flex items-center gap-2 px-6 py-3 bg-violet-50 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400 text-sm font-semibold rounded-full hover:bg-violet-100 dark:hover:bg-violet-500/20 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+            Share article
+          </button>
+          <button class="inline-flex items-center gap-2 px-6 py-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-semibold rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
+            Bookmark
+          </button>
+        </div>
+
+        <!-- Author Box -->
+        <div class="mt-12 p-8 bg-white dark:bg-[#111113] rounded-3xl border border-slate-200/80 dark:border-slate-800/80">
+          <div class="flex flex-col sm:flex-row items-center gap-6">
+            <img :src="post.author?.avatar || `https://ui-avatars.com/api/?name=${post.author?.name}&background=6366f1&color=fff&size=128`" class="w-20 h-20 rounded-2xl shadow-lg">
+            <div class="flex-1 text-center sm:text-left">
+              <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-1">{{ post.author?.name }}</h3>
+              <p class="text-sm text-violet-600 dark:text-violet-400 font-medium mb-3">Content Creator</p>
+              <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
+                Sharing insights on technology, design, and development. Follow along for weekly updates and in-depth tutorials.
+              </p>
+            </div>
+            <button class="px-6 py-2.5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm font-semibold rounded-full hover:bg-slate-800 dark:hover:bg-slate-100 transition-colors shrink-0">
+              Follow
+            </button>
+          </div>
+        </div>
+
+        <!-- Comments Section -->
+        <div class="mt-16 mb-20">
+          <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-8 flex items-center gap-3">
+            <svg class="w-6 h-6 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+            Discussion ({{ post.comments_count || 0 }})
+          </h2>
+          
+          <div v-if="post.allow_comments" class="bg-slate-50 dark:bg-[#111113] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 p-6">
+            <div class="flex gap-4">
+              <div class="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center text-white font-semibold shrink-0">U</div>
+              <div class="flex-1">
+                <textarea 
+                  placeholder="Share your thoughts..." 
+                  class="w-full p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all min-h-[100px] resize-none"
+                ></textarea>
+                <div class="mt-3 flex justify-end">
+                  <button class="px-6 py-2.5 bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white text-sm font-semibold rounded-full hover:shadow-lg hover:shadow-violet-500/30 transition-all">
+                    Post Comment
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="mt-8 text-center text-slate-400 text-sm py-8">
+              Be the first to share your thoughts on this article.
+            </div>
+          </div>
+          <div v-else class="bg-slate-50 dark:bg-[#111113] rounded-2xl border border-slate-200/80 dark:border-slate-800/80 p-8 text-center">
+            <svg class="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+            <p class="text-slate-500 dark:text-slate-400 font-medium">Comments are disabled for this article.</p>
+          </div>
+        </div>
+
+      </main>
+    </template>
+
+    <!-- 404 State -->
+    <div v-else class="min-h-screen flex flex-col items-center justify-center px-6 text-center">
+      <div class="w-20 h-20 mb-8 rounded-3xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+        <svg class="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <h2 class="text-3xl font-bold text-slate-900 dark:text-white mb-4">Article not found</h2>
+      <p class="text-slate-500 dark:text-slate-400 mb-8 max-w-md">The article you're looking for might have been removed or is temporarily unavailable.</p>
+      <router-link to="/blog" class="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white font-semibold rounded-full hover:shadow-xl hover:shadow-violet-500/30 transition-all">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        Back to Blog
+      </router-link>
+    </div>
+
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import { publicBlogService } from '../../../services/publicBlogService';
 
 const route = useRoute();
+const post = ref(null);
+const loading = ref(true);
 const scrollProgress = ref(0);
 
-const post = {
-  title: 'The Architecture of Global Scale Distributed Databases',
-  slug: 'architecture-global-scale-distributed-databases',
-  excerpt: 'Exploring the fundamental principles behind building databases that can handle millions of requests per second across multiple continents while maintaining consistency and availability.',
-  category: 'Engineering',
-  image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc51?auto=format&fit=crop&q=80&w=1600',
-  date: 'Feb 4, 2026',
-  readTime: '12 min',
-  tags: ['Architecture', 'Database', 'Scaling', 'Distributed'],
-  author: {
-    name: 'Dr. Helena Ray',
-    role: 'Distinguished Architect',
-    avatar: 'https://i.pravatar.cc/100?u=helena'
-  },
-  content: `
-    <h2>The Foundation of Scale</h2>
-    <p>Building at global scale requires a fundamental shift in how we perceive data consistency and network partitioning. When your users are spread across 24 time zones, the laws of physics—specifically light speed—become your greatest bottleneck.</p>
-    
-    <h3>1. CAP Theorem Re-imagined</h3>
-    <p>In a global environment, we often choose between Consistency and Availability. Modern systems like Spanner or CockroachDB attempt to bridge this gap using Atomic Clocks or Hybrid Logical Clocks. The ability to coordinate transactions across thousands of nodes without centralized locks is the "holy grail" of distributed logic.</p>
+const fetchPost = async () => {
+  loading.value = true;
+  try {
+    const data = await publicBlogService.getPost(route.params.slug);
+    post.value = data.data;
+  } catch (error) {
+    console.error('Failed to fetch post', error);
+  } finally {
+    loading.value = false;
+  }
+};
 
-    <div class="my-12 p-8 bg-linear-to-tr from-indigo-500/10 to-transparent rounded-3xl border theme-border">
-      <p class="text-indigo-600 font-bold uppercase tracking-widest text-xs mb-4">Pro Insight</p>
-      <p class="theme-text-main italic text-lg">"The most expensive part of a global system isn't the compute; it's the coordination of state across high-latency links."</p>
-    </div>
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  return new Date(dateString).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
+};
 
-    <h3>2. Sharding and Re-distribution</h3>
-    <p>Sharding is no longer just about splitting a table. It's about data locality. We must ensure that a user in Tokyo doesn't have to wait for their requests to travel to Virginia and back. Data should be "attracted" to its users while maintaining the ability to be queried globally.</p>
+const formatNumber = (num) => {
+  if (!num) return 0;
+  return new Intl.NumberFormat('en-US', { notation: 'compact', compactDisplay: 'short' }).format(num);
+};
 
-    <p>We use consistent hashing rings to ensure that adding or removing nodes doesn't trigger a catastrophic data migration. This allows our infrastructure to breathe—expanding during peak loads and contracting when idle, all without manual intervention.</p>
-  `
+// Extract YouTube thumbnail from URL
+const getYouTubeThumbnail = (url) => {
+  if (!url) return 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2000&auto=format&fit=crop';
+  
+  // Match YouTube URL patterns
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+    /youtube\.com\/v\/([a-zA-Z0-9_-]{11})/
+  ];
+  
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match && match[1]) {
+      // Return high quality YouTube thumbnail
+      return `https://img.youtube.com/vi/${match[1]}/maxresdefault.jpg`;
+    }
+  }
+  
+  // Fallback image if not a YouTube URL
+  return 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2000&auto=format&fit=crop';
 };
 
 const updateScrollProgress = () => {
@@ -222,10 +316,11 @@ const updateScrollProgress = () => {
   const docHeight = document.documentElement.scrollHeight;
   const winHeight = window.innerHeight;
   const scrollPercent = (scrollTop / (docHeight - winHeight)) * 100;
-  scrollProgress.value = scrollPercent;
+  scrollProgress.value = Math.min(100, Math.max(0, scrollPercent));
 };
 
 onMounted(() => {
+  fetchPost();
   window.addEventListener('scroll', updateScrollProgress);
   window.scrollTo(0, 0);
 });
@@ -233,37 +328,11 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('scroll', updateScrollProgress);
 });
+
+watch(() => route.params.slug, (newSlug) => {
+  if (newSlug) {
+    fetchPost();
+    window.scrollTo(0, 0);
+  }
+});
 </script>
-
-<style scoped>
-.bg-dot-pattern {
-  background-image: radial-gradient(rgba(79, 70, 229, 0.15) 1.5px, transparent 1.5px);
-  background-size: 60px 60px;
-}
-.shadow-4xl {
-  box-shadow: 0 60px 100px -20px rgba(0, 0, 0, 0.4), 0 30px 60px -30px rgba(79, 70, 229, 0.2);
-}
-.aspect-21\/9 {
-  aspect-ratio: 21 / 9;
-}
-
-/* Custom Prose overrides for premium look */
-:deep(.prose) h2 {
-  font-weight: 900;
-  letter-spacing: -0.05em;
-  font-size: 3rem;
-  margin-top: 4rem;
-  margin-bottom: 2rem;
-}
-:deep(.prose) h3 {
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  font-size: 2rem;
-  margin-top: 3rem;
-}
-:deep(.prose) p {
-  line-height: 1.8;
-  margin-bottom: 2rem;
-  opacity: 0.9;
-}
-</style>

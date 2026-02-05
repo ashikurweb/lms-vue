@@ -31,6 +31,14 @@ Route::prefix('auth')->group(function () {
     });
 });
 
+// Public Blog Routes
+Route::prefix('blog')->group(function () {
+    Route::get('/posts', [\App\Http\Controllers\Api\BlogController::class, 'index']);
+    Route::get('/posts/featured', [\App\Http\Controllers\Api\BlogController::class, 'featured']);
+    Route::get('/posts/{slug}', [\App\Http\Controllers\Api\BlogController::class, 'show']);
+    Route::get('/categories', [\App\Http\Controllers\Api\BlogController::class, 'categories']);
+});
+
 // Admin Routes
 Route::middleware(['auth.jwt'])->prefix('admin')->group(function () {
     Route::get('/blog-categories/all', [\App\Http\Controllers\Api\Admin\BlogCategoryController::class, 'getAll']);
