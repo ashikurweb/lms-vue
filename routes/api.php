@@ -35,4 +35,7 @@ Route::prefix('auth')->group(function () {
 Route::middleware(['auth.jwt'])->prefix('admin')->group(function () {
     Route::get('/blog-categories/all', [\App\Http\Controllers\Api\Admin\BlogCategoryController::class, 'getAll']);
     Route::apiResource('blog-categories', \App\Http\Controllers\Api\Admin\BlogCategoryController::class);
+
+    Route::get('/blog-tags/all', [\App\Http\Controllers\Api\Admin\BlogTagController::class, 'getAll']);
+    Route::apiResource('blog-tags', \App\Http\Controllers\Api\Admin\BlogTagController::class);
 });

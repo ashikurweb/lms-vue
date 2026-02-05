@@ -18,6 +18,7 @@ class BlogCategoryController extends Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $categories = BlogCategory::query()
+            ->with(['parent']) // Eager Load parent to prevent N+1 in listing
             ->withCount('posts')
             ->when($request->search, fn($q, $search) => $q->search($search))
             ->when($request->has('status'), function ($query) use ($request) {

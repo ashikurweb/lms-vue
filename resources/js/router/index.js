@@ -82,6 +82,7 @@ const routes = [
             { path: 'quizzes', name: 'quizzes', component: () => import('../views/admin/quizzes/Index.vue') },
             // Blog
             { path: 'blog/categories', name: 'blog-categories', component: () => import('../views/admin/blog-categories/Index.vue') },
+            { path: 'blog/tags', name: 'blog-tags', component: () => import('../views/admin/blog-tags/Index.vue') },
             { path: 'blog/posts', name: 'blog-posts', component: () => import('../views/admin/blog-posts/Index.vue') },
             // Users
             { path: 'users', name: 'users', component: () => import('../views/admin/users/Index.vue') },

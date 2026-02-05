@@ -11,6 +11,14 @@ class BlogTag extends Model
 {
     use HasFactory, HasSlug;
 
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     protected $fillable = [
         'name',
         'slug',

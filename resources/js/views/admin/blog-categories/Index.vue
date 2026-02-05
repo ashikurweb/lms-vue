@@ -49,25 +49,12 @@
       </div>
 
       <template v-else>
-        <!-- Empty State -->
-        <div v-if="categories.length === 0" class="theme-bg-card border theme-border rounded-[2.5rem] py-32 text-center shadow-sm">
-          <div class="flex flex-col items-center justify-center space-y-4 animate-in fade-in zoom-in duration-500">
-            <div class="relative w-32 h-32 flex items-center justify-center">
-              <div class="absolute inset-0 bg-linear-to-tr from-indigo-500/20 to-violet-500/20 rounded-[2.5rem] rotate-12 animate-pulse"></div>
-              <div class="absolute inset-0 bg-linear-to-bl from-indigo-500/10 to-violet-500/10 rounded-[2.5rem] -rotate-6 animate-pulse" style="animation-delay: 1s"></div>
-              <div class="relative z-10 w-20 h-20 theme-bg-card rounded-3xl border-2 theme-border shadow-xl flex items-center justify-center overflow-hidden group">
-                <div class="absolute inset-0 bg-linear-to-br from-indigo-500/5 to-transparent"></div>
-                <svg class="w-10 h-10 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-              </div>
-            </div>
-            <div class="space-y-1">
-              <h3 class="text-lg font-black theme-text-main">No categories found</h3>
-              <p class="text-sm theme-text-dim font-medium max-w-xs mx-auto">Start organizing your content by creating a new category.</p>
-            </div>
-          </div>
-        </div>
+        <!-- Empty State Component -->
+        <EmptyState 
+          v-if="categories.length === 0"
+          title="No categories found"
+          message="Start organizing your content by creating a new category and grouping your posts."
+        />
 
         <!-- Floating Rows -->
         <div class="space-y-3">
@@ -313,6 +300,7 @@ import FormInput from '../../../components/common/FormInput.vue';
 import ActionDialog from '../../../components/common/ActionDialog.vue';
 import Pagination from '../../../components/common/Pagination.vue';
 import SkeletonLoader from '../../../components/common/SkeletonLoader.vue';
+import EmptyState from '../../../components/common/EmptyState.vue';
 import { useToast } from '../../../composables/useToast';
 import { truncateText } from '../../../utils/helpers';
 
