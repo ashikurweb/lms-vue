@@ -151,7 +151,14 @@ const handleLogin = async () => {
         success('Welcome back! Session initialized.');
 
         // Check if user has admin/super-admin role
-        const isAdmin = userRoles.some(role => ['admin', 'super-admin'].includes(role.name));
+        const isAdmin = userRoles.some((role) => {
+            // If roles are simple strings: ["user", "super-admin"]
+            if (typeof role === 'string') {
+                return ['admin', 'super-admin'].includes(role);
+            }
+            // Fallback if roles are objects: [{ name: "super-admin" }]
+            return ['admin', 'super-admin'].includes(role.name);
+        });
 
         if (isAdmin) {
              router.push({ name: 'dashboard' });

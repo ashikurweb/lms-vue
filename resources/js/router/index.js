@@ -107,7 +107,17 @@ router.beforeEach((to, from, next) => {
 
     // Helper to check for admin role
     const isAdmin = () => {
-        return user?.roles?.some(role => ['admin', 'super-admin'].includes(role.name));
+        if (!user || !user.roles) return false;
+
+        return user.roles.some((role) => {
+            // If backend sends roles as strings: ["user", "super-admin"]
+            if (typeof role === 'string') {
+                return ['admin', 'super-admin'].includes(role);
+            }
+
+            // Fallback if roles are objects: [{ name: "super-admin" }]
+            return ['admin', 'super-admin'].includes(role.name);
+        });
     };
 
     // 1. Route Requires Authentication
