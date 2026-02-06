@@ -68,7 +68,7 @@
            <div class="w-8 h-8 rounded-lg overflow-hidden border theme-border group-hover:border-indigo-500/30 transition-all">
               <img :src="`https://ui-avatars.com/api/?name=${user?.name || 'User'}&background=6366f1&color=fff`" alt="User">
            </div>
-           <span class="hidden sm:block text-xs font-bold theme-text-main group-hover:text-indigo-600 transition-colors uppercase tracking-wider">Profile</span>
+           <span class="hidden sm:block text-xs font-bold theme-text-main group-hover:text-indigo-600 transition-colors uppercase tracking-wider">{{ user?.name }}</span>
            <svg 
              class="w-4 h-4 theme-text-dim transition-transform duration-300"
              :class="{ 'rotate-180': isProfileOpen }"

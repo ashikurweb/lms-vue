@@ -63,4 +63,11 @@ Route::middleware(['auth.jwt'])->prefix('admin')->group(function () {
 
     Route::apiResource('blog-posts', \App\Http\Controllers\Api\Admin\BlogPostController::class);
     Route::post('upload-image', [\App\Http\Controllers\Api\Admin\UploadController::class, 'uploadImage']);
+
+    // Currency Routes
+    Route::apiResource('currencies', \App\Http\Controllers\API\CurrencyController::class);
+    Route::patch('/currencies/{currency}/toggle-status', [\App\Http\Controllers\API\CurrencyController::class, 'toggleStatus']);
+    Route::patch('/currencies/{currency}/set-default', [\App\Http\Controllers\API\CurrencyController::class, 'setDefault']);
+    Route::get('/currencies/default', [\App\Http\Controllers\API\CurrencyController::class, 'getDefault']);
+    Route::get('/currencies/active', [\App\Http\Controllers\API\CurrencyController::class, 'getActive']);
 });
