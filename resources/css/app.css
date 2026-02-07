@@ -27,20 +27,48 @@ body {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
 }
 
-/* Custom Scrollbar */
-.custom-scrollbar::-webkit-scrollbar {
-    width: 5px;
+/* Global Premium Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
 }
 
-.custom-scrollbar::-webkit-scrollbar-track {
+::-webkit-scrollbar-track {
     background: transparent;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 10px;
+::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.1); /* Indigo with low opacity */
+    border-radius: 20px;
+    border: 2px solid transparent; /* Gives a "padding" effect */
+    background-clip: content-box;
+    transition: all 0.3s ease;
 }
 
-.dark .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #1e293b;
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(99, 102, 241, 0.4);
+    background-clip: content-box;
+}
+
+/* Specific class for targeted containers if needed */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.2);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(99, 102, 241, 0.5);
+}
+
+/* Dark Mode Specific Tweaks if needed */
+.dark ::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.15);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+    background: rgba(99, 102, 241, 0.5);
 }

@@ -1,24 +1,18 @@
 <template>
   <div class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-      <div>
-        <h1 class="text-3xl font-black theme-text-main tracking-tight">Blog Categories</h1>
-        <p class="text-sm theme-text-muted mt-1 font-medium">Organize your blog posts into meaningful categories.</p>
-      </div>
-      <div class="flex items-center gap-3">
-        <div class="relative group">
-          <input 
-            v-model="search"
-            type="text" 
-            placeholder="Search categories..." 
-            class="pl-10 pr-4 py-3 theme-bg-card border theme-border rounded-2xl text-sm font-bold theme-text-main outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all w-64"
-            @input="debounceSearch"
-          >
-          <svg class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 theme-text-dim group-focus-within:text-indigo-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-          </svg>
-        </div>
+    <!-- Premium Dashboard Header Component -->
+    <PageHeader 
+      title="Blog Categories"
+      subtitle="Organize your blog posts into meaningful categories."
+      v-model="search"
+      add-label="Add Category"
+      search-placeholder="Search categories..."
+      @search="debounceSearch"
+    >
+      <template #icon>
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+      </template>
+      <template #actions>
         <button 
           @click="openAddModal"
           class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20 active:scale-95 transition-all"
@@ -26,154 +20,112 @@
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
           <span class="hidden sm:inline">Add Category</span>
         </button>
-      </div>
-    </div>
+      </template>
+    </PageHeader>
 
-    <!-- Modern Floating Table -->
-    <div class="relative min-h-[400px]">
-      <!-- Column Headers -->
-      <div class="grid grid-cols-12 gap-4 px-8 py-4 mb-4 theme-table-header rounded-2xl shadow-sm overflow-hidden relative group/header">
-        <div class="absolute inset-x-0 bottom-0 h-px bg-linear-to-r from-transparent via-indigo-500/30 to-transparent"></div>
-        <div class="col-span-1 text-[10px] font-black theme-table-header-text uppercase tracking-[0.2em]">SL</div>
-        <div class="col-span-3 text-[10px] font-black theme-table-header-text uppercase tracking-[0.2em]">Category Details</div>
-        <div class="col-span-3 text-[10px] font-black theme-table-header-text uppercase tracking-[0.2em]">Description</div>
-        <div class="col-span-1 text-[10px] font-black theme-table-header-text uppercase tracking-[0.2em] text-center">Articles</div>
-        <div class="col-span-1 text-[10px] font-black theme-table-header-text uppercase tracking-[0.2em] text-center">Featured</div>
-        <div class="col-span-1 text-[10px] font-black theme-table-header-text uppercase tracking-[0.2em] text-center">Status</div>
-        <div class="col-span-2 text-[10px] font-black theme-table-header-text uppercase tracking-[0.2em] text-right">Actions</div>
-      </div>
+    <!-- Dynamic DataTable Engine -->
+    <DataTable 
+      :headers="tableHeaders"
+      :items="categories"
+      :loading="loading"
+      :pagination="pagination"
+      empty-title="No categories found"
+      empty-message="Start organizing your content by creating a new category and grouping your posts."
+      @page-change="fetchCategories"
+    >
+      <template #row="{ item: category, index }">
+        <!-- SL Column -->
+        <TableSLCell :index="formatSL(index)" />
 
-      <!-- Loading State -->
-      <div v-if="loading" class="flex items-center justify-center py-32 theme-bg-card border theme-border rounded-[2.5rem] shadow-sm">
-         <SkeletonLoader :cols="7" />
-      </div>
-
-      <template v-else>
-        <!-- Empty State Component -->
-        <EmptyState 
-          v-if="categories.length === 0"
-          title="No categories found"
-          message="Start organizing your content by creating a new category and grouping your posts."
-        />
-
-        <!-- Floating Rows -->
-        <div class="space-y-3">
-          <div 
-            v-for="(category, index) in categories" 
-            :key="category.id" 
-            class="grid grid-cols-12 gap-4 items-center px-8 py-4 theme-bg-card border theme-border rounded-[1.5rem] shadow-sm transition-colors duration-300 group"
-          >
-            <!-- SL Column -->
-            <div class="col-span-1">
-              <div class="w-9 h-9 rounded-xl theme-bg-element border theme-border flex items-center justify-center text-[11px] font-black theme-text-dim transition-all">
-                {{ (pagination.current_page - 1) * pagination.per_page + index + 1 }}
-              </div>
+        <!-- Details Column -->
+        <div class="col-span-3">
+          <div class="flex items-center gap-4">
+            <div 
+              class="w-11 h-11 rounded-xl flex items-center justify-center text-lg font-bold border-2 theme-border shadow-inner transition-transform duration-500 group-hover:scale-110"
+              :style="{ color: category.color || '#6366f1', backgroundColor: (category.color || '#6366f1') + '10', borderColor: (category.color || '#6366f1') + '20' }"
+            >
+              {{ category.name.charAt(0) }}
             </div>
-
-            <!-- Details Column -->
-            <div class="col-span-3">
-              <div class="flex items-center gap-4">
-                <div 
-                  class="w-11 h-11 rounded-xl flex items-center justify-center text-lg font-bold border-2 theme-border shadow-inner transition-transform duration-500 group-hover:scale-110"
-                  :style="{ color: category.color || '#6366f1', backgroundColor: (category.color || '#6366f1') + '10', borderColor: (category.color || '#6366f1') + '20' }"
-                >
-                  {{ category.name.charAt(0) }}
-                </div>
-                <div class="flex flex-col">
-                  <span class="text-sm font-black theme-text-main tracking-tight transition-colors duration-300">{{ category.name }}</span>
-                  <span class="text-[9px] theme-text-dim font-bold uppercase tracking-widest opacity-70">{{ category.parent ? 'Parent: ' + category.parent.name : 'Primary Category' }}</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Description Column -->
-            <div class="col-span-3">
-              <p class="text-[11px] font-medium theme-text-dim leading-relaxed italic opacity-80 group-hover:opacity-100 transition-opacity" :title="category.description">
-                "{{ truncateText(category.description, 55) || 'No description provided' }}"
-              </p>
-            </div>
-
-            <!-- Articles Column -->
-            <div class="col-span-1 text-center">
-              <div class="inline-flex flex-col items-center">
-                <span class="text-base font-black theme-text-main leading-none transition-transform duration-300">{{ category.posts_count }}</span>
-                <span class="text-[8px] font-bold theme-text-dim uppercase tracking-tighter">Articles</span>
-              </div>
-            </div>
-
-            <!-- Featured Column -->
-            <div class="col-span-1 flex justify-center">
-              <button 
-                @click="toggleFeatured(category)"
-                class="relative w-11 h-6 rounded-full transition-all duration-500 shadow-inner overflow-hidden"
-                :class="category.is_featured ? 'bg-amber-500 shadow-amber-900/20' : 'theme-bg-element'"
-              >
-                <div 
-                  class="absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-all duration-500 shadow-lg flex items-center justify-center"
-                  :class="category.is_featured ? 'translate-x-5 rotate-180' : 'translate-x-0'"
-                >
-                  <svg class="w-2.5 h-2.5" :class="category.is_featured ? 'text-amber-500' : 'text-slate-300'" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                </div>
-              </button>
-            </div>
-
-            <!-- Status Column -->
-            <div class="col-span-1 flex justify-center">
-              <button 
-                @click="toggleStatus(category)"
-                class="relative w-11 h-6 rounded-full transition-all duration-500 shadow-inner overflow-hidden"
-                :class="category.is_active ? 'bg-emerald-500 shadow-emerald-900/20' : 'theme-bg-element'"
-              >
-                <div 
-                  class="absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-all duration-500 shadow-lg flex items-center justify-center"
-                  :class="category.is_active ? 'translate-x-5' : 'translate-x-0'"
-                >
-                  <svg class="w-2.5 h-2.5" :class="category.is_active ? 'text-emerald-500' : 'text-slate-300'" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                </div>
-              </button>
-            </div>
-
-            <!-- Actions Column -->
-            <div class="col-span-2 text-right">
-              <div class="flex items-center justify-end">
-                <div class="relative group/actions flex items-center">
-                  <!-- Expanded Action Dock -->
-                  <div class="absolute right-0 flex items-center gap-1.5 px-2 py-1.5 theme-bg-card border theme-border rounded-2xl shadow-2xl opacity-0 invisible translate-x-4 scale-90 group-hover/actions:opacity-100 group-hover/actions:visible group-hover/actions:translate-x-[-45px] group-hover/actions:scale-100 transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1) z-20 backdrop-blur-xl">
-                    <button 
-                      @click="editCategory(category)"
-                      class="w-9 h-9 flex items-center justify-center rounded-xl text-indigo-500 hover:bg-indigo-500/10 transition-all active:scale-90"
-                      title="Edit Category"
-                    >
-                      <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                    </button>
-                    <div class="w-px h-4 bg-slate-700/50"></div>
-                    <button 
-                      @click="triggerDelete(category)"
-                      class="w-9 h-9 flex items-center justify-center rounded-xl text-rose-500 hover:bg-rose-500/10 transition-all active:scale-90"
-                      title="Delete Category"
-                    >
-                      <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                    </button>
-                  </div>
-
-                  <!-- Main Trigger Button -->
-                  <button class="w-10 h-10 flex items-center justify-center rounded-xl theme-bg-element border theme-border theme-text-dim hover:theme-text-main hover:border-indigo-500/50 transition-all group-hover/actions:rotate-90 group-hover/actions:bg-indigo-600 group-hover/actions:text-white group-hover/actions:shadow-[0_0_20px_rgba(79,70,229,0.4)] z-30">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
-                    </svg>
-                  </button>
-                </div>
-              </div>
+            <div class="flex flex-col">
+              <span class="text-sm font-black theme-text-main tracking-tight transition-colors duration-300">{{ category.name }}</span>
+              <span class="text-[9px] theme-text-dim font-bold uppercase tracking-widest opacity-70">{{ category.parent ? 'Parent: ' + category.parent.name : 'Primary Category' }}</span>
             </div>
           </div>
         </div>
 
-        <!-- Pagination Component -->
-        <div class="mt-8">
-          <Pagination :pagination="pagination" @change="fetchCategories" />
+        <!-- Description Column -->
+        <div class="col-span-3">
+          <p class="text-[11px] font-medium theme-text-dim leading-relaxed italic opacity-80 group-hover:opacity-100 transition-opacity" :title="category.description">
+            "{{ truncateText(category.description, 55) || 'No description provided' }}"
+          </p>
+        </div>
+
+        <!-- Articles Column -->
+        <div class="col-span-1 text-center">
+          <div class="inline-flex flex-col items-center">
+            <span class="text-base font-black theme-text-main leading-none transition-transform duration-300">{{ category.posts_count }}</span>
+            <span class="text-[8px] font-bold theme-text-dim uppercase tracking-tighter">Articles</span>
+          </div>
+        </div>
+
+        <!-- Featured Column -->
+        <div class="col-span-1 flex justify-center">
+          <button 
+            @click="toggleFeatured(category)"
+            class="relative w-11 h-6 rounded-full transition-all duration-500 shadow-inner overflow-hidden flex items-center px-1"
+            :class="category.is_featured ? 'bg-amber-500 shadow-amber-900/20' : 'theme-bg-element'"
+          >
+            <div 
+              class="w-4 h-4 bg-white rounded-full transition-all duration-500 shadow-lg flex items-center justify-center"
+              :class="category.is_featured ? 'translate-x-5 rotate-180' : 'translate-x-0'"
+            >
+              <svg class="w-2.5 h-2.5" :class="category.is_featured ? 'text-amber-500' : 'text-slate-300'" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            </div>
+          </button>
+        </div>
+
+        <!-- Status Column -->
+        <div class="col-span-1 flex justify-center">
+          <button 
+            @click="toggleStatus(category)"
+            class="relative w-11 h-6 rounded-full transition-all duration-500 shadow-inner overflow-hidden flex items-center px-1"
+            :class="category.is_active ? 'bg-emerald-500 shadow-emerald-900/20' : 'theme-bg-element'"
+          >
+            <div 
+              class="w-4 h-4 bg-white rounded-full transition-all duration-500 shadow-lg flex items-center justify-center font-black"
+              :class="category.is_active ? 'translate-x-5' : 'translate-x-0'"
+            >
+              <svg class="w-2.5 h-2.5" :class="category.is_active ? 'text-emerald-500' : 'text-slate-300'" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+            </div>
+          </button>
+        </div>
+
+        <!-- Actions Column -->
+        <div class="col-span-2 text-right">
+          <div class="flex items-center justify-end">
+            <TableActionDock>
+                <button 
+                  @click="editCategory(category)"
+                  class="w-9 h-9 flex items-center justify-center rounded-xl text-amber-500 hover:bg-amber-500/10 transition-all active:scale-90"
+                  title="Edit Category"
+                >
+                  <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                  </svg>
+                </button>
+                <div class="w-px h-4 bg-slate-700/50"></div>
+                <button 
+                  @click="triggerDelete(category)"
+                  class="w-9 h-9 flex items-center justify-center rounded-xl text-rose-500 hover:bg-rose-500/10 transition-all active:scale-90"
+                  title="Delete Category"
+                >
+                  <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                </button>
+            </TableActionDock>
+          </div>
         </div>
       </template>
-    </div>
+    </DataTable>
 
     <!-- Side Over Panel / Modal -->
     <transition name="panel">
@@ -258,7 +210,7 @@
 
               <div class="pt-4 flex items-center gap-4">
                 <button 
-                  type="submit"
+                  type="submit" 
                   :disabled="saving"
                   class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white py-4 rounded-2xl font-bold shadow-lg shadow-indigo-600/20 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                 >
@@ -287,16 +239,27 @@
 <script setup>
 import { ref, onMounted, reactive, computed } from 'vue';
 import { blogCategoryService } from '../../../services/blogCategoryService';
+import PageHeader from '../../../components/common/PageHeader.vue';
+import TableActionDock from '../../../components/common/TableActionDock.vue';
+import TableSLCell from '../../../components/common/table/TableSLCell.vue';
 import FormInput from '../../../components/common/FormInput.vue';
 import FormDropdown from '../../../components/common/FormDropdown.vue';
 import ActionDialog from '../../../components/common/ActionDialog.vue';
-import Pagination from '../../../components/common/Pagination.vue';
-import SkeletonLoader from '../../../components/common/SkeletonLoader.vue';
-import EmptyState from '../../../components/common/EmptyState.vue';
+import DataTable from '../../../components/common/DataTable.vue';
 import { useToast } from '../../../composables/useToast';
 import { truncateText } from '../../../utils/helpers';
 
 const toast = useToast();
+
+const tableHeaders = [
+  { label: 'SL', span: 1, align: 'left' },
+  { label: 'Category Details', span: 3, align: 'left' },
+  { label: 'Description', span: 3, align: 'left' },
+  { label: 'Articles', span: 1, align: 'center' },
+  { label: 'Featured', span: 1, align: 'center' },
+  { label: 'Status', span: 1, align: 'center' },
+  { label: 'Actions', span: 2, align: 'right' },
+];
 const categories = ref([]);
 const allCategories = ref([]);
 const loading = ref(true);
@@ -314,8 +277,6 @@ const pagination = reactive({
   last_page: 1,
   per_page: 10,
   total: 0,
-  from: 0,
-  to: 0
 });
 
 const form = reactive({
@@ -344,22 +305,23 @@ const fetchCategories = async (page = 1) => {
       search: search.value,
       per_page: pagination.per_page 
     });
-    // Add a small artificial delay to make the premium loader visible on local dev
     await new Promise(resolve => setTimeout(resolve, 500));
     
     categories.value = data.data;
-    // Map pagination from meta object (standard for Laravel API Resources)
     const meta = data.meta;
     pagination.current_page = meta.current_page;
     pagination.last_page = meta.last_page;
     pagination.total = meta.total;
-    pagination.from = meta.from;
-    pagination.to = meta.to;
   } catch (error) {
     toast.error('Failed to fetch categories');
   } finally {
     loading.value = false;
   }
+};
+
+const formatSL = (index) => {
+  const sl = (pagination.current_page - 1) * pagination.per_page + index + 1;
+  return sl < 10 ? `0${sl}` : sl;
 };
 
 const fetchAllForSelect = async () => {

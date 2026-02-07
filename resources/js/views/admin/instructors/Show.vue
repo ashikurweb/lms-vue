@@ -22,7 +22,7 @@
           </router-link>
           <div>
             <h1 class="text-6xl font-black theme-text-main tracking-tighter leading-none mb-2">
-              Instructor <span class="bg-gradient-to-r from-indigo-500 to-violet-500 bg-clip-text text-transparent">Profile</span>
+              Instructor <span class="bg-linear-to-r from-indigo-500 to-violet-500 bg-clip-text text-transparent">Profile</span>
             </h1>
             <p v-if="instructor.id" class="text-lg theme-text-muted font-medium max-w-xl">Deep analysis and credentials for <span class="theme-text-main font-black">{{ instructor.name }}</span>.</p>
           </div>

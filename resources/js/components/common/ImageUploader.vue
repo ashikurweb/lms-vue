@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-4">
     <div 
-      class="relative rounded-[2rem] theme-bg-element border-2 border-dashed theme-border flex flex-col items-center justify-center group overflow-hidden transition-all duration-500 hover:border-indigo-500/50"
+      class="relative rounded-4xl theme-bg-element border-2 border-dashed theme-border flex flex-col items-center justify-center group overflow-hidden transition-all duration-500 hover:border-indigo-500/50"
       :class="[
         aspect === 'square' ? 'aspect-square min-w-[280px]' : 'aspect-video w-full'
       ]"
@@ -59,7 +59,7 @@
       </div>
 
       <!-- Dragging Overlay -->
-      <div v-if="isDragging" class="absolute inset-0 bg-indigo-600/20 backdrop-blur-sm border-4 border-indigo-500 border-dashed rounded-[2rem] z-30 flex items-center justify-center">
+      <div v-if="isDragging" class="absolute inset-0 bg-indigo-600/20 backdrop-blur-sm border-4 border-indigo-500 border-dashed rounded-4xl z-30 flex items-center justify-center">
         <div class="bg-white text-indigo-600 px-6 py-3 rounded-2xl font-black uppercase tracking-widest animate-bounce">
           Drop it here!
         </div>

@@ -1,5 +1,5 @@
 <template>
-  <div class="theme-bg-card border theme-border rounded-[2.5rem] py-24 text-center shadow-sm relative overflow-hidden group">
+  <div class="theme-bg-card border theme-border rounded-[2.5rem] py-40 text-center shadow-sm relative overflow-hidden group">
     <!-- Decorative Background Glows -->
     <div class="absolute -top-24 -left-24 w-48 h-48 bg-indigo-500/10 blur-[100px] rounded-full group-hover:bg-indigo-500/20 transition-all duration-700"></div>
     <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-violet-500/10 blur-[100px] rounded-full group-hover:bg-violet-500/20 transition-all duration-700"></div>
