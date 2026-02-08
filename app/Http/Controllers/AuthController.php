@@ -189,8 +189,23 @@ class AuthController extends Controller
     public function refresh(): JsonResponse
     {
         try {
-            return $this->respondWithToken(auth('api')->refresh(), auth('api')->user(), 'Token refreshed successfully');
+            // Ensure token is present
+            if (!$token = auth('api')->getToken()) {
+                // Try grabbing from request if not set on guard
+                $token = request()->bearerToken();
+                if ($token) {
+                    auth('api')->setToken($token);
+                } else {
+                     throw new Exception('Token not provided');
+                }
+            }
+            
+            $newToken = auth('api')->refresh();
+            $user = auth('api')->setToken($newToken)->user();
+            
+            return $this->respondWithToken($newToken, $user, 'Token refreshed successfully');
         } catch (Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Refresh error: ' . $e->getMessage());
             return $this->errorResponse('Refresh failed: ' . $e->getMessage(), 401);
         }
     }

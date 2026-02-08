@@ -26,9 +26,11 @@ Route::prefix('auth')->group(function () {
         Route::middleware('verified.api')->group(function () {
             Route::get('/me', [AuthController::class, 'me']);
             Route::post('/logout', [AuthController::class, 'logout']);
-            Route::post('/refresh', [AuthController::class, 'refresh']);
         });
     });
+
+    // Refresh Token (must be outside auth.jwt to allow expired tokens)
+    Route::post('/refresh', [AuthController::class, 'refresh']);
 });
 
 // Public Blog Routes
