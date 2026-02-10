@@ -61,10 +61,36 @@ const routes = [
                 meta: { auth: true }
             },
             {
-                path: 'my-account',
-                name: 'profile',
+                path: ':username/profile',
+                name: 'user.profile',
                 component: () => import('../views/frontend/user/Profile.vue'),
-                meta: { auth: true } // Requires login, but is a frontend route
+                meta: { auth: true }, // Requires login, but is a frontend route
+                beforeEnter: (to, from, next) => {
+                    const token = localStorage.getItem('auth_token');
+                    const user = JSON.parse(localStorage.getItem('auth_user') || 'null');
+
+                    // Helper to check for admin role
+                    const isAdmin = () => {
+                        if (!user || !user.roles) return false;
+
+                        return user.roles.some((role) => {
+                            // If backend sends roles as strings: ["user", "super-admin"]
+                            if (typeof role === 'string') {
+                                return ['admin', 'super-admin'].includes(role);
+                            }
+
+                            // Fallback if roles are objects: [{ name: "super-admin" }]
+                            return ['admin', 'super-admin'].includes(role.name);
+                        });
+                    };
+
+                    // If user is admin, redirect to admin profile
+                    if (isAdmin()) {
+                        next({ name: 'admin.profile' });
+                    } else {
+                        next();
+                    }
+                }
             }
         ]
     },
@@ -113,10 +139,12 @@ const routes = [
             { path: 'settings', name: 'settings', component: () => import('../views/admin/settings/Index.vue') },
             { path: 'settings/general', name: 'settings.general', component: () => import('../views/admin/settings/General.vue') },
             { path: 'current', name: 'current', component: () => import('../views/admin/current/Index.vue') },
-            { path: 'currencies', name: 'currencies', component: () => import('../views/admin/currencies/Index.vue') }
+            { path: 'currencies', name: 'currencies', component: () => import('../views/admin/currencies/Index.vue') },
+            { path: 'profile', name: 'admin.profile', component: () => import('../views/admin/profile/Index.vue') }
         ]
     }
 ];
+
 
 const router = createRouter({
     history: createWebHistory(),
@@ -154,7 +182,7 @@ router.beforeEach((to, from, next) => {
                 next();
             } else {
                 // User is logged in but NOT admin -> Send to frontend User Profile
-                next({ name: 'profile' });
+                next({ name: 'user.profile', params: { username: user.username } });
             }
         }
         else {
@@ -168,7 +196,7 @@ router.beforeEach((to, from, next) => {
             if (isAdmin()) {
                 next({ name: 'dashboard' });
             } else {
-                next({ name: 'profile' });
+                next({ name: 'user.profile', params: { username: user.username } });
             }
         } else {
             next();

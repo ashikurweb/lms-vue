@@ -37,15 +37,20 @@
 
       <!-- User Profile (Bottom) -->
       <div class="p-4 mt-auto border-t theme-border">
-        <div class="flex items-center gap-3 p-3 rounded-2xl theme-bg-card border theme-border theme-shadow transition-all theme-border-hover theme-bg-hover group cursor-pointer">
+        <router-link 
+          to="/admin/profile"
+          @click="$emit('close')"
+          class="flex items-center gap-3 p-3 rounded-2xl theme-bg-card border theme-border theme-shadow transition-all theme-border-hover theme-bg-hover group cursor-pointer block"
+        >
           <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 p-[2px]">
             <img src="https://ui-avatars.com/api/?name=Ashikur+Rahman&background=0b1120&color=fff" class="w-full h-full rounded-[10px] shadow-sm transform group-hover:scale-105 transition-transform" alt="User">
           </div>
           <div class="flex-1 min-w-0">
             <p class="text-sm font-bold truncate theme-text-main">Ashikur Rahman</p>
-            <p class="text-[10px] theme-text-dim font-bold uppercase tracking-wider">Premium Student</p>
+            <p class="text-[10px] theme-text-dim font-bold uppercase tracking-wider">Administrator</p>
           </div>
-        </div>
+          <svg class="w-4 h-4 theme-text-dim opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </router-link>
       </div>
     </div>
   </aside>

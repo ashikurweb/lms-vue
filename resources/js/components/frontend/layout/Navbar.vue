@@ -93,14 +93,14 @@
                   </router-link>
 
                   <router-link 
-                    :to="{ name: 'profile' }"
+                    :to="isAdmin ? { name: 'admin.profile' } : { name: 'user.profile', params: { username: user.username } }"
                     class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl theme-text-muted theme-bg-hover hover:theme-text-main group"
                     @click="isProfileOpen = false"
                   >
                       <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-white transition-colors">
                           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
                       </div>
-                      <span class="text-xs font-black uppercase tracking-widest">Account</span>
+                      <span class="text-xs font-black uppercase tracking-widest">My Account</span>
                   </router-link>
 
                   <button class="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl theme-text-muted theme-bg-hover hover:theme-text-main group">

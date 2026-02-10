@@ -49,7 +49,7 @@ Route::middleware(['auth.jwt'])->prefix('blog')->group(function () {
 });
 
 // Admin Routes
-Route::middleware(['auth.jwt'])->prefix('admin')->group(function () {
+Route::middleware(['auth.jwt', 'admin.role'])->prefix('admin')->group(function () {
     Route::get('/categories/all', [\App\Http\Controllers\Api\Admin\CategoryController::class, 'getAll']);
     Route::apiResource('categories', \App\Http\Controllers\Api\Admin\CategoryController::class);
     Route::patch('/categories/{category}/toggle-featured', [\App\Http\Controllers\Api\Admin\CategoryController::class, 'toggleFeatured']);
@@ -103,4 +103,8 @@ Route::middleware(['auth.jwt'])->prefix('admin')->group(function () {
     Route::get('/settings/timezones', [\App\Http\Controllers\Api\Admin\SettingController::class, 'timezones']);
     Route::post('/settings', [\App\Http\Controllers\Api\Admin\SettingController::class, 'update']);
     Route::post('/settings/single', [\App\Http\Controllers\Api\Admin\SettingController::class, 'updateSingle']);
+
+    // Admin Profile Routes
+    Route::get('/profile', [\App\Http\Controllers\Api\Admin\AdminProfileController::class, 'show']);
+    Route::put('/profile', [\App\Http\Controllers\Api\Admin\AdminProfileController::class, 'update']);
 });

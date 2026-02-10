@@ -50,17 +50,36 @@
 
         <!-- Identity Column (Matches Identity Header: col-span-4) -->
         <div class="col-span-4">
-          <TableIdentityCell 
-            :title="student.name"
-            :subtitle="student.email"
-            :image="student.avatar"
-            :to="{ name: 'users.show', params: { uuid: student.uuid } }"
-          >
-            <template #metadata>
+          <div v-if="student.isEditing" class="space-y-3">
+            <FormInput 
+              v-model="student.editForm.name"
+              placeholder="Enter full name"
+              class="text-sm"
+            />
+            <FormInput 
+              v-model="student.editForm.email"
+              type="email"
+              placeholder="Enter email address"
+              class="text-sm"
+            />
+            <div class="flex items-center gap-2 text-xs text-slate-500">
               <span class="w-1 h-1 bg-slate-700/50 rounded-full"></span>
-              <span class="text-[9px] font-black theme-text-dim/60 uppercase tracking-widest">@{{ student.username }}</span>
-            </template>
-          </TableIdentityCell>
+              <span class="font-black uppercase tracking-widest">@{{ student.username }}</span>
+            </div>
+          </div>
+          <div v-else>
+            <TableIdentityCell 
+              :title="student.name"
+              :subtitle="student.email"
+              :image="student.avatar"
+              :to="{ name: 'users.show', params: { uuid: student.uuid } }"
+            >
+              <template #metadata>
+                <span class="w-1 h-1 bg-slate-700/50 rounded-full"></span>
+                <span class="text-[9px] font-black theme-text-dim/60 uppercase tracking-widest">@{{ student.username }}</span>
+              </template>
+            </TableIdentityCell>
+          </div>
         </div>
 
         <!-- Stats Column (Matches Impact Header: col-span-2) -->
@@ -91,16 +110,50 @@
 
         <!-- Actions Column -->
         <div class="col-span-2 text-right">
-          <div class="flex items-center justify-end">
+          <div class="flex items-center justify-end gap-1">
+            <!-- Edit Button -->
+            <button 
+              v-if="!student.isEditing"
+              @click="startEditing(student)"
+              class="w-9 h-9 flex items-center justify-center rounded-xl text-amber-500 hover:bg-amber-500/10 transition-all active:scale-90"
+              title="Edit User"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+              </svg>
+            </button>
+
+            <!-- Save Button -->
+            <button 
+              v-if="student.isEditing"
+              @click="saveUser(student)"
+              class="w-9 h-9 flex items-center justify-center rounded-xl text-emerald-500 hover:bg-emerald-500/10 transition-all active:scale-90"
+              title="Save Changes"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+            </button>
+
+            <!-- Cancel Button -->
+            <button 
+              v-if="student.isEditing"
+              @click="cancelEditing(student)"
+              class="w-9 h-9 flex items-center justify-center rounded-xl text-rose-500 hover:bg-rose-500/10 transition-all active:scale-90"
+              title="Cancel Editing"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+
             <TableActionDock>
                 <router-link 
                   :to="{ name: 'users.show', params: { uuid: student.uuid } }"
                   class="w-9 h-9 flex items-center justify-center rounded-xl text-indigo-500 hover:bg-indigo-500/10 transition-all active:scale-90"
                   title="View Profile"
                 >
-                  <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                  </svg>
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                 </router-link>
                 <div class="w-px h-4 bg-slate-700/50"></div>
                 <button 
@@ -401,6 +454,43 @@ const handleStatusToggle = async (student) => {
 const triggerDelete = (student) => {
   studentToDelete.value = student;
   showDeleteModal.value = true;
+};
+
+const startEditing = (student) => {
+  // Prevent editing admin accounts
+  if (student.roles?.some(role => ['admin', 'super-admin'].includes(role))) {
+    toast.error('Administrative accounts cannot be edited from Student Directory');
+    return;
+  }
+
+  student.isEditing = true;
+  student.editForm = {
+    name: student.name,
+    email: student.email,
+  };
+};
+
+const saveUser = async (student) => {
+  if (!student.editForm.name || !student.editForm.email) {
+    toast.error('Name and email are required');
+    return;
+  }
+
+  try {
+    await userService.update(student.uuid, student.editForm);
+    student.name = student.editForm.name;
+    student.email = student.editForm.email;
+    student.isEditing = false;
+    delete student.editForm;
+    toast.success('User updated successfully');
+  } catch (error) {
+    toast.error('Failed to update user');
+  }
+};
+
+const cancelEditing = (student) => {
+  student.isEditing = false;
+  delete student.editForm;
 };
 
 const confirmDelete = async () => {
