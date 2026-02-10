@@ -111,9 +111,7 @@
             <div>
               <h2 class="text-xl font-black theme-text-main tracking-tight">{{ isEditing ? 'Edit' : 'Add' }} Category
               </h2>
-              <p class="text-xs theme-text-dim font-medium">{{ isEditing ? 'Modify existing category details' : 'Create
-              a
-                new blog category' }}</p>
+              <p class="text-xs theme-text-dim font-medium">{{ isEditing ? 'Modify existing category details' : 'Create a new blog category' }}</p>
             </div>
             <button @click="closeModal" class="p-2 theme-text-muted hover:theme-text-main transition-colors">
               <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
