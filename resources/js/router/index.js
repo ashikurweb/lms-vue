@@ -101,7 +101,23 @@ const routes = [
         children: [
             { path: 'dashboard', name: 'dashboard', component: () => import('../views/admin/dashboard/Index.vue') },
             // Learning
-            { path: 'courses', name: 'courses', component: () => import('../views/admin/courses/Index.vue') },
+            { 
+                path: 'courses',
+                children: [
+                    { path: '', name: 'admin.courses.index', component: () => import('../views/admin/courses/Index.vue') },
+                    { path: 'create', name: 'admin.courses.create', component: () => import('../views/admin/courses/Manage.vue') },
+                    { path: ':slug/edit', name: 'admin.courses.edit', component: () => import('../views/admin/courses/Manage.vue') },
+                    { 
+                        path: ':slug/curriculum', 
+                        children: [
+                            { path: '', name: 'admin.courses.curriculum', component: () => import('../views/admin/courses/Curriculum.vue') },
+                            { path: 'lesson/create', name: 'admin.courses.lesson.create', component: () => import('../views/admin/courses/LessonManage.vue') },
+                            { path: 'lesson/:lessonId/edit', name: 'admin.courses.lesson.edit', component: () => import('../views/admin/courses/LessonManage.vue') },
+                        ]
+                    },
+                ]
+            },
+            { path: 'lessons', name: 'lessons', component: () => import('../views/admin/lessons/Index.vue') },
             { path: 'categories', name: 'categories', component: () => import('../views/admin/categories/Index.vue') },
             { path: 'bundles', name: 'bundles', component: () => import('../views/admin/bundles/Index.vue') },
             { path: 'assignments', name: 'assignments', component: () => import('../views/admin/assignments/Index.vue') },

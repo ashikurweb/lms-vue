@@ -36,7 +36,7 @@ class UploadController extends Controller
                 
                 // Store on 'public' disk
                 $path = $file->storeAs($folder, $fileName, 'public');
-                $url = Storage::disk('public')->url($path);
+                $url = Storage::url($path);
                 
                 return response()->json([
                     'url' => $url,
@@ -57,7 +57,7 @@ class UploadController extends Controller
                     
                     // Store on 'public' disk
                     Storage::disk('public')->put($path, $content);
-                    $url = Storage::disk('public')->url($path);
+                    $url = Storage::url($path);
                     
                     return response()->json([
                         'url' => $url,
@@ -67,6 +67,42 @@ class UploadController extends Controller
             }
 
             return response()->json(['message' => 'No image provided'], 422);
+
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Upload failed: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Handle Video Upload
+     */
+    public function uploadVideo(Request $request)
+    {
+        $request->validate([
+            'video' => 'required|file|mimes:mp4,mov,avi,wmv,mkv|max:102400', // max 100MB
+            'folder' => 'nullable|string'
+        ]);
+
+        $folder = $request->input('folder', 'uploads/videos');
+        $folder = preg_replace('/[^a-zA-Z0-9\/\-_]/', '', $folder);
+        
+        try {
+            if ($request->hasFile('video')) {
+                $file = $request->file('video');
+                $extension = $file->getClientOriginalExtension() ?: 'mp4';
+                $fileName = Str::random(25) . '.' . $extension;
+                
+                $path = $file->storeAs($folder, $fileName, 'public');
+                $url = Storage::url($path);
+                
+                return response()->json([
+                    'url' => $url,
+                    'path' => $path,
+                    'file_name' => $file->getClientOriginalName()
+                ]);
+            }
+
+            return response()->json(['message' => 'No video file provided'], 422);
 
         } catch (\Exception $e) {
             return response()->json(['message' => 'Upload failed: ' . $e->getMessage()], 500);
