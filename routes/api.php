@@ -60,6 +60,12 @@ Route::middleware(['auth.jwt', 'admin.role'])->prefix('admin')->group(function (
     Route::patch('/blog-categories/{blogCategory}/toggle-featured', [\App\Http\Controllers\Api\Admin\BlogCategoryController::class, 'toggleFeatured']);
     Route::patch('/blog-categories/{blogCategory}/toggle-status', [\App\Http\Controllers\Api\Admin\BlogCategoryController::class, 'toggleStatus']);
 
+    Route::get('/discussions/all', [\App\Http\Controllers\Api\Admin\DiscussionController::class, 'getAll']);
+    Route::apiResource('discussions', \App\Http\Controllers\Api\Admin\DiscussionController::class);
+    Route::patch('/discussions/{discussion}/toggle-featured', [\App\Http\Controllers\Api\Admin\DiscussionController::class, 'toggleFeatured']);
+    Route::patch('/discussions/{discussion}/toggle-pinned', [\App\Http\Controllers\Api\Admin\DiscussionController::class, 'togglePinned']);
+    Route::patch('/discussions/{discussion}/toggle-status', [\App\Http\Controllers\Api\Admin\DiscussionController::class, 'toggleStatus']);
+
     Route::get('/blog-tags/all', [\App\Http\Controllers\Api\Admin\BlogTagController::class, 'getAll']);
     Route::apiResource('blog-tags', \App\Http\Controllers\Api\Admin\BlogTagController::class);
 
@@ -79,14 +85,16 @@ Route::middleware(['auth.jwt', 'admin.role'])->prefix('admin')->group(function (
     // Payout Routes
     Route::apiResource('payouts', \App\Http\Controllers\Api\Admin\PayoutController::class);
 
-    Route::post('upload-image', [\App\Http\Controllers\Api\Admin\UploadController::class, 'uploadImage']);
+    // Admin Upload Routes
+    Route::post('/upload-image', [\App\Http\Controllers\Api\Admin\UploadController::class, 'uploadImage']);
+    Route::post('/upload-video', [\App\Http\Controllers\Api\Admin\UploadController::class, 'uploadVideo']);
 
     // Currency Routes
+    Route::get('/currencies/default', [\App\Http\Controllers\API\CurrencyController::class, 'getDefault']);
+    Route::get('/currencies/active', [\App\Http\Controllers\API\CurrencyController::class, 'getActive']);
     Route::apiResource('currencies', \App\Http\Controllers\API\CurrencyController::class);
     Route::patch('/currencies/{currency}/toggle-status', [\App\Http\Controllers\API\CurrencyController::class, 'toggleStatus']);
     Route::patch('/currencies/{currency}/set-default', [\App\Http\Controllers\API\CurrencyController::class, 'setDefault']);
-    Route::get('/currencies/default', [\App\Http\Controllers\API\CurrencyController::class, 'getDefault']);
-    Route::get('/currencies/active', [\App\Http\Controllers\API\CurrencyController::class, 'getActive']);
     
     // Multi-Currency Routes
     Route::post('/currencies/convert', [\App\Http\Controllers\API\CurrencyController::class, 'convert']);
@@ -103,6 +111,34 @@ Route::middleware(['auth.jwt', 'admin.role'])->prefix('admin')->group(function (
     Route::get('/settings/timezones', [\App\Http\Controllers\Api\Admin\SettingController::class, 'timezones']);
     Route::post('/settings', [\App\Http\Controllers\Api\Admin\SettingController::class, 'update']);
     Route::post('/settings/single', [\App\Http\Controllers\Api\Admin\SettingController::class, 'updateSingle']);
+
+    // Course Routes
+    Route::apiResource('courses', \App\Http\Controllers\Api\Admin\CourseController::class);
+    Route::patch('/courses/{course}/toggle-featured', [\App\Http\Controllers\Api\Admin\CourseController::class, 'toggleFeatured']);
+    Route::patch('/courses/{course}/toggle-status', [\App\Http\Controllers\Api\Admin\CourseController::class, 'toggleStatus']);
+
+    // Course Curriculum Routes
+    Route::get('/lessons', [\App\Http\Controllers\Api\Admin\CourseCurriculumController::class, 'lessonsIndex']);
+    Route::get('/courses/{course}/curriculum', [\App\Http\Controllers\Api\Admin\CourseCurriculumController::class, 'index']);
+    Route::post('/courses/{course}/sections', [\App\Http\Controllers\Api\Admin\CourseCurriculumController::class, 'storeSection']);
+    Route::post('/sections/{section}/lessons', [\App\Http\Controllers\Api\Admin\CourseCurriculumController::class, 'storeLesson']);
+    Route::put('/sections/{section}', [\App\Http\Controllers\Api\Admin\CourseCurriculumController::class, 'updateSection']);
+    Route::delete('/sections/{section}', [\App\Http\Controllers\Api\Admin\CourseCurriculumController::class, 'destroySection']);
+    Route::put('/lessons/{lesson}', [\App\Http\Controllers\Api\Admin\CourseCurriculumController::class, 'updateLesson']);
+    Route::delete('/lessons/{lesson}', [\App\Http\Controllers\Api\Admin\CourseCurriculumController::class, 'destroyLesson']);
+    Route::post('/curriculum/reorder-sections', [\App\Http\Controllers\Api\Admin\CourseCurriculumController::class, 'reorderSections']);
+
+    // Lesson Resources (Downloadable Files)
+    Route::get('/lessons/{lesson}/resources', [\App\Http\Controllers\Api\Admin\LessonAttachmentController::class, 'resourceIndex']);
+    Route::post('/lessons/{lesson}/resources', [\App\Http\Controllers\Api\Admin\LessonAttachmentController::class, 'resourceStore']);
+    Route::put('/lesson-resources/{resource}', [\App\Http\Controllers\Api\Admin\LessonAttachmentController::class, 'resourceUpdate']);
+    Route::delete('/lesson-resources/{resource}', [\App\Http\Controllers\Api\Admin\LessonAttachmentController::class, 'resourceDestroy']);
+
+    // Video Tracks (Subtitles/Captions)
+    Route::get('/lessons/{lesson}/tracks', [\App\Http\Controllers\Api\Admin\LessonAttachmentController::class, 'trackIndex']);
+    Route::post('/lessons/{lesson}/tracks', [\App\Http\Controllers\Api\Admin\LessonAttachmentController::class, 'trackStore']);
+    Route::put('/video-tracks/{track}', [\App\Http\Controllers\Api\Admin\LessonAttachmentController::class, 'trackUpdate']);
+    Route::delete('/video-tracks/{track}', [\App\Http\Controllers\Api\Admin\LessonAttachmentController::class, 'trackDestroy']);
 
     // Admin Profile Routes
     Route::get('/profile', [\App\Http\Controllers\Api\Admin\AdminProfileController::class, 'show']);

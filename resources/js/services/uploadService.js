@@ -24,5 +24,19 @@ export const uploadService = {
         });
 
         return response.data;
+    },
+
+    async uploadVideo(file, folder = 'uploads/videos') {
+        const formData = new FormData();
+        formData.append('video', file);
+        formData.append('folder', folder);
+
+        const response = await api.post('/admin/upload-video', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+
+        return response.data;
     }
 };
