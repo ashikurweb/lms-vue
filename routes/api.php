@@ -60,6 +60,12 @@ Route::middleware(['auth.jwt', 'admin.role'])->prefix('admin')->group(function (
     Route::patch('/blog-categories/{blogCategory}/toggle-featured', [\App\Http\Controllers\Api\Admin\BlogCategoryController::class, 'toggleFeatured']);
     Route::patch('/blog-categories/{blogCategory}/toggle-status', [\App\Http\Controllers\Api\Admin\BlogCategoryController::class, 'toggleStatus']);
 
+    Route::get('/discussions/all', [\App\Http\Controllers\Api\Admin\DiscussionController::class, 'getAll']);
+    Route::apiResource('discussions', \App\Http\Controllers\Api\Admin\DiscussionController::class);
+    Route::patch('/discussions/{discussion}/toggle-featured', [\App\Http\Controllers\Api\Admin\DiscussionController::class, 'toggleFeatured']);
+    Route::patch('/discussions/{discussion}/toggle-pinned', [\App\Http\Controllers\Api\Admin\DiscussionController::class, 'togglePinned']);
+    Route::patch('/discussions/{discussion}/toggle-status', [\App\Http\Controllers\Api\Admin\DiscussionController::class, 'toggleStatus']);
+
     Route::get('/blog-tags/all', [\App\Http\Controllers\Api\Admin\BlogTagController::class, 'getAll']);
     Route::apiResource('blog-tags', \App\Http\Controllers\Api\Admin\BlogTagController::class);
 

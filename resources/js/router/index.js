@@ -130,6 +130,8 @@ const routes = [
                 ]
             },
             { path: 'discussions', name: 'discussions', component: () => import('../views/admin/discussions/Index.vue') },
+            { path: 'discussions/create', name: 'discussions.create', component: () => import('../views/admin/discussions/Create.vue') },
+            { path: 'discussions/:uuid/edit', name: 'discussions.edit', component: () => import('../views/admin/discussions/Edit.vue') },
             { path: 'live-classes', name: 'live-classes', component: () => import('../views/admin/live-classes/Index.vue') },
             // Finance
             { path: 'orders', name: 'orders', component: () => import('../views/admin/orders/Index.vue') },

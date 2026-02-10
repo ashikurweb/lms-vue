@@ -24,22 +24,16 @@
           leave-from-class="opacity-100 scale-100 translate-y-0"
           leave-to-class="opacity-0 scale-90 translate-y-8"
         >
-          <div v-if="show" class="relative w-full max-w-md theme-bg-card rounded-[2.5rem] border theme-border shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] overflow-hidden p-8 text-center glass-card">
-            <!-- Premium Icon Header -->
-            <div class="mb-6 relative">
-              <div class="w-20 h-20 rounded-3xl bg-rose-500/10 flex items-center justify-center mx-auto relative z-10 box-glow">
-                <div class="absolute inset-0 bg-rose-500/20 rounded-3xl animate-ping opacity-20"></div>
-                <svg class="w-10 h-10 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </div>
-              <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-rose-500/5 blur-3xl rounded-full"></div>
-            </div>
-
+            <div>
             <!-- Content -->
             <div class="space-y-2 mb-8">
               <h3 class="text-2xl font-black theme-text-main tracking-tight">{{ title }}</h3>
-              <p class="text-sm theme-text-dim font-medium leading-relaxed px-4">{{ message }}</p>
+              
+              <!-- Custom Content Slot -->
+              <slot></slot>
+              
+              <!-- Default Message if no slot content -->
+              <p v-if="!$slots.default" class="text-sm theme-text-dim font-medium leading-relaxed px-4">{{ message }}</p>
             </div>
 
             <!-- Actions -->
@@ -63,7 +57,7 @@
                 {{ cancelText }}
               </button>
             </div>
-          </div>
+            </div>
         </Transition>
       </div>
     </Transition>

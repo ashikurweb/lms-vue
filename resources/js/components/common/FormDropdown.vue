@@ -11,13 +11,13 @@
       <button
         type="button"
         @click="toggle"
-        class="w-full px-6 py-4 rounded-2xl theme-bg-element border-2 theme-border outline-none transition-all text-sm font-bold theme-text-main flex items-center justify-between group"
+        class="w-full px-6 py-5 rounded-2xl theme-bg-element border-2 theme-border outline-none transition-all font-bold theme-text-main flex items-center justify-between group"
         :class="[
           isOpen ? 'border-indigo-500/50 ring-4 ring-indigo-500/10' : 'hover:theme-border-main',
           error ? 'border-rose-500/50' : ''
         ]"
       >
-        <span :class="{ 'theme-text-muted': !selectedOption }">
+        <span :class="{ 'theme-text-muted': !selectedOption }" class="text-sm">
           {{ selectedOption ? selectedOption.label : placeholder }}
         </span>
         <svg 
