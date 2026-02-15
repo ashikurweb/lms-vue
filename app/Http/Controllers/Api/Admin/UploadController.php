@@ -79,7 +79,7 @@ class UploadController extends Controller
     public function uploadVideo(Request $request)
     {
         $request->validate([
-            'video' => 'required|file|mimes:mp4,mov,avi,wmv,mkv|max:102400', // max 100MB
+            'video' => 'required|file|mimes:mp4,mov,avi,wmv,mkv|max:307200', // max 300MB
             'folder' => 'nullable|string'
         ]);
 
