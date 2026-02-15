@@ -48,6 +48,14 @@ Route::middleware(['auth.jwt'])->prefix('blog')->group(function () {
     Route::post('/posts/{slug}/comment', [\App\Http\Controllers\Api\BlogController::class, 'comment']);
 });
 
+// Public Course Routes
+Route::prefix('courses')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Api\CourseController::class, 'index']);
+    Route::get('/featured', [\App\Http\Controllers\Api\CourseController::class, 'featured']);
+    Route::get('/categories', [\App\Http\Controllers\Api\CourseController::class, 'categories']);
+    Route::get('/{slug}', [\App\Http\Controllers\Api\CourseController::class, 'show']);
+});
+
 // Admin Routes
 Route::middleware(['auth.jwt', 'admin.role'])->prefix('admin')->group(function () {
     Route::get('/categories/all', [\App\Http\Controllers\Api\Admin\CategoryController::class, 'getAll']);

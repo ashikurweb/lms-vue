@@ -16,6 +16,11 @@ const routes = [
                 component: () => import('../views/frontend/courses/Index.vue')
             },
             {
+                path: 'courses/:slug',
+                name: 'frontend.courses.show',
+                component: () => import('../views/frontend/courses/Show.vue')
+            },
+            {
                 path: 'instructors',
                 name: 'frontend.instructors',
                 component: () => import('../views/frontend/instructors/Index.vue')
@@ -101,14 +106,14 @@ const routes = [
         children: [
             { path: 'dashboard', name: 'dashboard', component: () => import('../views/admin/dashboard/Index.vue') },
             // Learning
-            { 
+            {
                 path: 'courses',
                 children: [
                     { path: '', name: 'admin.courses.index', component: () => import('../views/admin/courses/Index.vue') },
                     { path: 'create', name: 'admin.courses.create', component: () => import('../views/admin/courses/Manage.vue') },
                     { path: ':slug/edit', name: 'admin.courses.edit', component: () => import('../views/admin/courses/Manage.vue') },
-                    { 
-                        path: ':slug/curriculum', 
+                    {
+                        path: ':slug/curriculum',
                         children: [
                             { path: '', name: 'admin.courses.curriculum', component: () => import('../views/admin/courses/Curriculum.vue') },
                             { path: 'lesson/create', name: 'admin.courses.lesson.create', component: () => import('../views/admin/courses/LessonManage.vue') },
