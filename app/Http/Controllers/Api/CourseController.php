@@ -61,13 +61,23 @@ class CourseController extends Controller
     {
         $course = Course::query()
             ->with(['instructor', 'category', 'subcategory', 'sections.lessons' => function ($q) {
-                $q->select('id', 'section_id', 'title', 'type', 'duration_seconds', 'is_free', 'is_published', 'order')
+                $q->select('id', 'section_id', 'title', 'type', 'duration_seconds', 'is_free', 'is_published', 'order', 'video_url', 'video_qualities')
+                  ->with(['progress' => function($pq) {
+                      $pq->where('user_id', auth('api')->id());
+                  }])
                   ->where('is_published', true)
                   ->orderBy('order');
             }])
             ->published()
             ->where('slug', $slug)
             ->firstOrFail();
+
+        $isEnrolled = false;
+        if (auth('api')->check()) {
+            $isEnrolled = auth('api')->user()->student_enrollments()
+                ->where('course_id', $course->id)
+                ->exists();
+        }
 
         return response()->json([
             'id' => $course->id,
@@ -83,6 +93,13 @@ class CourseController extends Controller
             'thumbnail' => $this->formatUrl($course->thumbnail),
             'cover_image' => $this->formatUrl($course->cover_image),
             'promo_video' => $this->formatUrl($course->promo_video),
+            'video_resolutions' => $course->video_resolutions ? collect($course->video_resolutions)->map(function($video) {
+                return [
+                    'src' => $this->formatUrl($video['src']),
+                    'size' => $video['size'],
+                    'type' => $video['type'] ?? 'video/mp4'
+                ];
+            }) : null,
             'promo_video_type' => $course->promo_video_type,
             'price_type' => $course->price_type,
             'price' => $course->price,
@@ -99,6 +116,7 @@ class CourseController extends Controller
             'is_new' => $course->is_new,
             'is_featured' => $course->is_featured,
             'has_certificate' => $course->has_certificate,
+            'is_enrolled' => $isEnrolled,
             'discount_percentage' => $course->getDiscountPercentage(),
             'instructor' => [
                 'id' => $course->instructor->id,
@@ -121,6 +139,18 @@ class CourseController extends Controller
                             'type' => $lesson->type,
                             'duration_seconds' => $lesson->duration_seconds,
                             'is_free' => $lesson->is_free,
+                            'video_url' => $lesson->video_url ? $this->formatUrl($lesson->video_url) : null,
+                            'video_qualities' => $lesson->video_qualities ? collect($lesson->video_qualities)->map(function($v) {
+                                return [
+                                    'src' => $this->formatUrl($v['src']),
+                                    'size' => $v['size'],
+                                    'type' => $v['type'] ?? 'video/mp4'
+                                ];
+                            }) : null,
+                            'progress' => $lesson->progress->first() ? [
+                                'is_completed' => (bool) $lesson->progress->first()->is_completed,
+                                'last_position' => $lesson->progress->first()->last_position,
+                            ] : null,
                         ];
                     }),
                 ];

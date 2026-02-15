@@ -70,6 +70,7 @@ class Course extends Model
         'approved_at',
         'published_at',
         'meta',
+        'video_resolutions',
     ];
 
     protected $casts = [
@@ -95,6 +96,7 @@ class Course extends Model
         'approved_at' => 'datetime',
         'published_at' => 'datetime',
         'meta' => 'array',
+        'video_resolutions' => 'array',
     ];
 
     protected static function boot()

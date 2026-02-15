@@ -42,11 +42,19 @@ Route::prefix('blog')->group(function () {
     Route::post('/posts/{slug}/share', [\App\Http\Controllers\Api\BlogController::class, 'share']);
 });
 
-// Authenticated Blog Routes
-Route::middleware(['auth.jwt'])->prefix('blog')->group(function () {
-    Route::post('/posts/{slug}/like', [\App\Http\Controllers\Api\BlogController::class, 'like']);
-    Route::post('/posts/{slug}/comment', [\App\Http\Controllers\Api\BlogController::class, 'comment']);
+// Authenticated Blog & Course Routes
+Route::middleware(['auth.jwt'])->group(function () {
+    Route::prefix('blog')->group(function () {
+        Route::post('/posts/{slug}/like', [\App\Http\Controllers\Api\BlogController::class, 'like']);
+        Route::post('/posts/{slug}/comment', [\App\Http\Controllers\Api\BlogController::class, 'comment']);
+    });
+
+    Route::prefix('courses')->group(function () {
+        Route::post('/progress', [\App\Http\Controllers\Api\LessonProgressController::class, 'store']);
+        Route::get('/progress/{lessonId}', [\App\Http\Controllers\Api\LessonProgressController::class, 'show']);
+    });
 });
+
 
 // Public Course Routes
 Route::prefix('courses')->group(function () {

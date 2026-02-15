@@ -32,6 +32,22 @@
                         <div class="theme-bg-card border-2 theme-border rounded-[3rem] p-10 shadow-6xl sticky top-28 overflow-hidden">
                             <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-600/5 blur-3xl rounded-full translate-x-10 -translate-y-10"></div>
                             
+                            <!-- Course Progress Bar -->
+                            <div v-if="course.is_enrolled || true" class="mb-10 p-6 rounded-3xl theme-bg-element border-2 theme-border relative overflow-hidden group">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex flex-col">
+                                        <span class="text-[9px] font-black theme-text-dim uppercase tracking-widest">Your Progress</span>
+                                        <span class="text-xl font-black theme-text-main">{{ completionPercentage }}% Complete</span>
+                                    </div>
+                                    <div class="w-10 h-10 rounded-xl bg-indigo-600/10 flex items-center justify-center text-indigo-600">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    </div>
+                                </div>
+                                <div class="h-2.5 w-full bg-theme-bg-main rounded-full overflow-hidden border theme-border">
+                                    <div class="h-full bg-indigo-600 transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(79,70,229,0.4)]" :style="{ width: `${completionPercentage}%` }"></div>
+                                </div>
+                            </div>
+
                             <div class="flex items-center justify-between mb-10 relative z-10">
                                 <h2 class="text-2xl font-black theme-text-main tracking-tighter">Course Modules</h2>
                                 <span class="bg-indigo-600/10 text-indigo-600 px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-indigo-600/20">
@@ -48,13 +64,26 @@
 
                                     <div class="grid grid-cols-1 gap-3">
                                         <div v-for="(lesson, li) in section.lessons" :key="lesson.id" 
-                                            class="group flex items-center justify-between p-5 rounded-2xl theme-bg-element border-2 theme-border hover:border-indigo-500/30 transition-all cursor-pointer">
+                                            @click="handleLessonSelect(lesson)"
+                                            class="group flex items-center justify-between p-5 rounded-2xl theme-bg-element border-2 theme-border transition-all cursor-pointer"
+                                            :class="{ 'border-indigo-500 bg-indigo-500/5': selectedLesson?.id === lesson.id, 'hover:border-indigo-500/30': selectedLesson?.id !== lesson.id }">
                                             <div class="flex items-center gap-5">
-                                                <div class="w-8 h-8 rounded-lg bg-theme-bg-main flex items-center justify-center font-black text-[9px] theme-text-dim group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm">
-                                                    {{ (li+1).toString().padStart(2, '0') }}
+                                                <div class="w-8 h-8 rounded-lg flex items-center justify-center font-black text-[9px] transition-all shadow-sm"
+                                                    :class="[
+                                                        selectedLesson?.id === lesson.id ? 'bg-indigo-600 text-white' : 'bg-theme-bg-main theme-text-dim group-hover:bg-indigo-600 group-hover:text-white',
+                                                        lesson.progress?.is_completed ? '!bg-emerald-500 !text-white' : ''
+                                                    ]">
+                                                    <svg v-if="lesson.progress?.is_completed" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                                    <span v-else>{{ (li+1).toString().padStart(2, '0') }}</span>
                                                 </div>
                                                 <div class="space-y-1">
-                                                    <h4 class="text-[13px] font-bold theme-text-main group-hover:text-indigo-600 transition-colors line-clamp-1">{{ lesson.title }}</h4>
+                                                    <h4 class="text-[13px] font-bold transition-colors line-clamp-1"
+                                                        :class="[
+                                                            selectedLesson?.id === lesson.id ? 'text-indigo-600' : 'theme-text-main group-hover:text-indigo-600',
+                                                            lesson.progress?.is_completed ? 'text-emerald-500 line-through opacity-60' : ''
+                                                        ]">
+                                                        {{ lesson.title }}
+                                                    </h4>
                                                     <div class="flex items-center gap-2">
                                                         <span class="text-[8px] font-black theme-text-dim uppercase tracking-widest">{{ lesson.type }}</span>
                                                         <span v-if="lesson.is_free" class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
@@ -62,8 +91,14 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="w-8 h-8 rounded-full border-2 theme-border flex items-center justify-center theme-text-dim group-hover:border-indigo-600 group-hover:text-indigo-600 transition-all">
-                                                <svg v-if="lesson.is_free" class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>
+                                            <div class="w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all"
+                                                :class="[
+                                                    selectedLesson?.id === lesson.id ? 'border-indigo-600 text-indigo-600' : 'theme-border theme-text-dim group-hover:border-indigo-600 group-hover:text-indigo-600',
+                                                    lesson.progress?.is_completed ? 'border-emerald-500 text-emerald-500' : ''
+                                                ]">
+                                                <svg v-if="selectedLesson?.id === lesson.id" class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+                                                <svg v-else-if="lesson.progress?.is_completed" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                                <svg v-else-if="lesson.is_free" class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>
                                                 <svg v-else class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
                                             </div>
                                         </div>
@@ -76,25 +111,32 @@
                     <!-- RIGHT COLUMN: Video Player + Primary Details -->
                     <div class="lg:col-span-8 order-1 lg:order-2 space-y-12">
                         
-                        <!-- Premium Video Player -->
-                        <div class="relative bg-black rounded-[3rem] overflow-hidden shadow-6xl border-4 border-white/5 active:scale-[0.99] transition-transform duration-500 group">
-                            <div v-if="course.promo_video" class="aspect-video w-full relative">
-                                <video ref="videoPlayer" class="plyr-player" playsinline controls :poster="course.thumbnail">
-                                    <source :src="course.promo_video" type="video/mp4" />
-                                </video>
-                                <div v-if="isPlayerReady" class="absolute inset-0 pointer-events-none flex items-center justify-center z-20">
-                                    <div ref="playPauseIcon" class="w-24 h-24 rounded-full bg-indigo-600/90 text-white flex items-center justify-center shadow-2xl scale-0 opacity-0 backdrop-blur-md border border-white/20">
-                                        <svg v-if="isPlaying" class="w-10 h-10 ml-1" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>
-                                        <svg v-else class="w-10 h-10" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-                                    </div>
+                        <!-- Using New VideoPlayer Component -->
+                        <div v-if="selectedLesson?.video_url || course.promo_video">
+                            <VideoPlayer 
+                                :src="selectedLesson?.video_qualities?.length ? selectedLesson.video_qualities : (selectedLesson?.video_url || (course.video_resolutions?.length ? course.video_resolutions : course.promo_video))" 
+                                :poster="selectedLesson?.video_thumbnail || course.thumbnail"
+                                @ended="handleVideoEnd"
+                                @timeupdate="handleTimeUpdate"
+                                @ready="onPlayerReady"
+                            />
+                            <div v-if="selectedLesson" class="mt-6 flex items-center justify-between p-6 theme-bg-card border-2 theme-border rounded-3xl shadow-sm">
+                                <div class="space-y-1">
+                                    <span class="text-[10px] font-black theme-text-dim uppercase tracking-widest">Now Playing</span>
+                                    <h3 class="text-lg font-black theme-text-main leading-tight">{{ selectedLesson.title }}</h3>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-[10px] font-black theme-text-dim uppercase tracking-widest">{{ selectedLesson.type }}</span>
+                                    <div class="w-1 h-1 rounded-full bg-theme-border"></div>
+                                    <span class="text-[10px] font-black theme-text-dim uppercase tracking-widest">{{ selectedLesson.duration_seconds ? Math.floor(selectedLesson.duration_seconds / 60) + ' min' : '' }}</span>
                                 </div>
                             </div>
-                            <div v-else class="aspect-video w-full flex flex-col items-center justify-center space-y-6 bg-slate-900/50">
-                                <div class="w-20 h-20 rounded-full bg-indigo-600/5 flex items-center justify-center text-indigo-500/30">
-                                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                                </div>
-                                <p class="text-[10px] font-black theme-text-dim uppercase tracking-[0.5em]">Session Preview Not Found</p>
+                        </div>
+                        <div v-else class="aspect-video w-full flex flex-col items-center justify-center space-y-6 bg-slate-900/50 rounded-[3rem] border-4 border-white/5 shadow-6xl">
+                            <div class="w-20 h-20 rounded-full bg-indigo-600/5 flex items-center justify-center text-indigo-500/30">
+                                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
                             </div>
+                            <p class="text-[10px] font-black theme-text-dim uppercase tracking-[0.5em]">Session Preview Not Found</p>
                         </div>
 
                         <!-- Course Info Card -->
@@ -170,27 +212,49 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick, onBeforeUnmount } from 'vue';
+import { ref, onMounted, nextTick, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { publicCourseService } from '../../../services/publicCourseService';
-import gsap from 'gsap';
+import { courseProgressService } from '../../../services/courseProgressService';
+import VideoPlayer from '../../../components/common/VideoPlayer.vue';
 
 const route = useRoute();
 const course = ref(null);
 const loading = ref(true);
-const videoPlayer = ref(null);
-const playPauseIcon = ref(null);
-const isPlaying = ref(false);
-const isPlayerReady = ref(false);
-let playerInstance = null;
+const selectedLesson = ref(null);
+const lastSavedTime = ref(0);
+const playerRef = ref(null);
+
+const completionPercentage = computed(() => {
+    if (!course.value || !course.value.sections) return 0;
+    
+    let totalLessons = 0;
+    let completedLessons = 0;
+
+    course.value.sections.forEach(section => {
+        section.lessons.forEach(lesson => {
+            totalLessons++;
+            if (lesson.progress?.is_completed) {
+                completedLessons++;
+            }
+        });
+    });
+
+    return totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+});
 
 const fetchCourse = async () => {
     loading.value = true;
     try {
         const data = await publicCourseService.show(route.params.slug);
         course.value = data;
-        if (course.value?.promo_video) {
-            initVideoPlayer();
+        
+        // Always select the first lesson of the first section as default
+        if (data.sections && data.sections.length > 0) {
+            const firstSection = data.sections[0];
+            if (firstSection.lessons && firstSection.lessons.length > 0) {
+                handleLessonSelect(firstSection.lessons[0]);
+            }
         }
     } catch (error) {
         console.error('Core Link Failure:', error);
@@ -199,105 +263,103 @@ const fetchCourse = async () => {
     }
 };
 
-const initVideoPlayer = async () => {
-    await nextTick();
-    if (!window.Plyr) {
-        const script = document.createElement('script');
-        script.src = 'https://cdn.plyr.io/3.7.8/plyr.js';
-        script.onload = () => createPlayerInstance();
-        document.head.appendChild(script);
-
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'https://cdn.plyr.io/3.7.8/plyr.css';
-        document.head.appendChild(link);
-    } else {
-        createPlayerInstance();
+const handleLessonSelect = async (lesson) => {
+    if (!lesson.is_free && !course.value?.is_enrolled) {
+        console.log('Enrollment required for this lesson');
+        return;
     }
-};
-
-const createPlayerInstance = () => {
-    if (videoPlayer.value && window.Plyr) {
-        if (playerInstance) playerInstance.destroy();
-        
-        playerInstance = new window.Plyr(videoPlayer.value, {
-            controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'],
-            tooltips: { controls: true, seek: true },
-            keyboard: { focused: true, global: true },
-            quality: { default: 1080, options: [1080, 720, 480] }
-        });
-
-        playerInstance.on('play', () => {
-            isPlaying.value = true;
-            animateIcon();
-        });
-
-        playerInstance.on('pause', () => {
-            isPlaying.value = false;
-            animateIcon();
-        });
-
-        isPlayerReady.value = true;
-        videoPlayer.value.load();
-    }
-};
-
-const animateIcon = () => {
-    if (!playPauseIcon.value) return;
     
-    gsap.fromTo(playPauseIcon.value, 
-        { scale: 0, opacity: 0 },
-        { 
-            scale: 1, 
-            opacity: 1, 
-            duration: 0.4, 
-            ease: "back.out(1.7)",
-            onComplete: () => {
-                gsap.to(playPauseIcon.value, {
-                    scale: 1.5,
-                    opacity: 0,
-                    duration: 0.4,
-                    delay: 0.2,
-                    ease: "power2.in"
-                });
+    selectedLesson.value = lesson;
+    lastSavedTime.value = 0;
+
+    // Check if we already have progress from fetchCourse or fetch it specifically
+    if (lesson.progress?.last_position) {
+        lesson.last_position = lesson.progress.last_position;
+    } else {
+        try {
+            const progress = await courseProgressService.getLessonProgress(lesson.id);
+            if (progress && progress.last_position) {
+                lesson.last_position = progress.last_position;
+                lesson.progress = { is_completed: progress.is_completed, last_position: progress.last_position };
+            }
+        } catch (e) {
+            console.log('No progress found or user not logged in');
+        }
+    }
+};
+
+const onPlayerReady = (player) => {
+    playerRef.value = player;
+    if (selectedLesson.value?.last_position) {
+        player.currentTime = selectedLesson.value.last_position;
+    }
+};
+
+const handleVideoEnd = () => {
+    saveProgress(100, true);
+    
+    if (!selectedLesson.value || !course.value) return;
+
+    let currentLessonIndex = -1;
+    let currentSectionIndex = -1;
+
+    course.value.sections.forEach((section, si) => {
+        const li = section.lessons.findIndex(l => l.id === selectedLesson.value.id);
+        if (li !== -1) {
+            currentLessonIndex = li;
+            currentSectionIndex = si;
+        }
+    });
+
+    if (currentLessonIndex !== -1) {
+        if (currentLessonIndex < course.value.sections[currentSectionIndex].lessons.length - 1) {
+            handleLessonSelect(course.value.sections[currentSectionIndex].lessons[currentLessonIndex + 1]);
+        } 
+        else if (currentSectionIndex < course.value.sections.length - 1) {
+            const nextSection = course.value.sections[currentSectionIndex + 1];
+            if (nextSection.lessons && nextSection.lessons.length > 0) {
+                handleLessonSelect(nextSection.lessons[0]);
             }
         }
-    );
+    }
+};
+
+const handleTimeUpdate = (data) => {
+    const now = Date.now();
+    if (now - lastSavedTime.value > 30000) {
+        saveProgress(data.percentage);
+        lastSavedTime.value = now;
+    }
+};
+
+const saveProgress = async (percentage, isCompleted = false) => {
+    if (!selectedLesson.value || !playerRef.value) return;
+
+    try {
+        await courseProgressService.save({
+            lesson_id: selectedLesson.value.id,
+            watch_time: playerRef.value.currentTime,
+            last_position: playerRef.value.currentTime,
+            progress_percentage: percentage
+        });
+        
+        // Update local state for immediate feedback
+        if (isCompleted) {
+            if (!selectedLesson.value.progress) selectedLesson.value.progress = {};
+            selectedLesson.value.progress.is_completed = true;
+        }
+    } catch (error) {
+        console.error('Failed to save progress:', error);
+    }
 };
 
 onMounted(fetchCourse);
 
-onBeforeUnmount(() => {
-    if (playerInstance) playerInstance.destroy();
-});
+
+
 </script>
 
-<style>
-:root {
-    --plyr-color-main: #6366f1;
-    --plyr-video-control-background-hover: rgba(99, 102, 241, 0.2);
-    --plyr-video-controls-background: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0.85));
-    --plyr-range-thumb-height: 16px;
-    --plyr-range-track-height: 6px;
-    --plyr-control-radius: 16px;
-}
-
-.plyr {
-    height: 100% !important;
-    width: 100% !important;
-}
-
-.plyr--full-ui.plyr--video .plyr__control--overlaid {
-    background: rgba(99, 102, 241, 0.95) !important;
-    padding: 30px !important;
-    box-shadow: 0 20px 40px rgba(99, 102, 241, 0.4);
-}
-
-.plyr__control:hover {
-    background: var(--plyr-color-main) !important;
-    color: #fff !important;
-}
-
+<style scoped>
 .shadow-6xl {
     box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.3), 0 20px 40px -20px rgba(0, 0, 0, 0.15);
 }

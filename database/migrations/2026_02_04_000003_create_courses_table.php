@@ -34,6 +34,7 @@ return new class extends Migration
             $table->string('cover_image')->nullable();
             $table->string('promo_video')->nullable();
             $table->string('promo_video_type')->nullable(); // youtube, vimeo, upload
+            $table->json('video_resolutions')->nullable();
             
             // Pricing
             $table->enum('price_type', ['free', 'paid', 'subscription'])->default('free');
