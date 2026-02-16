@@ -1,69 +1,235 @@
 <template>
   <div class="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-    <!-- Page Header -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-      <div>
-        <h1 class="text-3xl font-black theme-text-main tracking-tight">Courses Management</h1>
-        <p class="text-sm theme-text-muted mt-1 font-medium">Create, edit and manage your curriculum effortlessly.</p>
-      </div>
-      <button class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20 active:scale-95 transition-all w-full md:w-auto">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-        <span>Add New Course</span>
-      </button>
-    </div>
+    <PageHeader title="Courses" subtitle="Manage your education catalog, pricing, and curriculum." v-model="search"
+      add-label="Create Course" search-placeholder="Search courses..." @search="debounceSearch">
+      <template #icon>
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        </svg>
+      </template>
+      <template #actions>
+        <PrimaryButton label="Create Course" @click="createNewCourse" class="!px-6 !py-3 !rounded-2xl">
+          <template #icon>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+          </template>
+        </PrimaryButton>
+      </template>
+    </PageHeader>
 
-    <!-- Quick Filters -->
-    <div class="flex flex-wrap items-center gap-3">
-        <button v-for="cat in categories" :key="cat" 
-                class="px-5 py-2 rounded-xl text-xs font-bold uppercase tracking-widest border theme-border transition-all"
-                :class="activeCat === cat ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'theme-bg-card theme-text-muted hover:theme-bg-hover'">
-            {{ cat }}
-        </button>
-    </div>
+    <DataTable :headers="tableHeaders" :items="courses" :loading="loading" :pagination="pagination"
+      empty-title="No courses found"
+      empty-message="Start building your learning platform by creating your first course." @page-change="fetchCourses">
+      <template #row="{ item: course, index }">
+        <TableSLCell :index="formatSL(index)" />
 
-    <!-- Courses Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div v-for="course in courses" :key="course.id" 
-           class="group theme-bg-card border theme-border rounded-[2rem] overflow-hidden hover:shadow-2xl hover:border-indigo-500/30 transition-all duration-300 transform hover:-translate-y-1">
-        <div class="h-48 relative overflow-hidden">
-          <img :src="course.image" :alt="course.title" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-          <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-          <div class="absolute top-4 left-4">
-            <span class="px-3 py-1 bg-white/20 backdrop-blur-md text-[10px] font-bold text-white rounded-lg border border-white/30 uppercase tracking-widest">{{ course.level }}</span>
-          </div>
-          <div class="absolute bottom-4 left-4 right-4 flex items-center justify-between text-white">
-            <span class="text-xs font-bold">{{ course.lessons }} Lessons</span>
-            <span class="text-xs font-bold bg-indigo-600 px-3 py-1 rounded-full shadow-lg shadow-indigo-600/20">${{ course.price }}</span>
-          </div>
-        </div>
-        <div class="p-6 space-y-4">
-          <h3 class="text-lg font-bold theme-text-main group-hover:text-indigo-600 transition-colors line-clamp-2 leading-tight">{{ course.title }}</h3>
-          <div class="flex items-center gap-3 py-3 border-y theme-border">
-            <img :src="course.instructor_avatar" class="w-8 h-8 rounded-full border theme-border" :alt="course.instructor">
-            <span class="text-xs font-bold theme-text-muted">{{ course.instructor }}</span>
-          </div>
-          <div class="flex items-center justify-between pt-2">
-            <div class="flex items-center gap-1">
-                <svg class="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                <span class="text-xs font-black theme-text-main">{{ course.rating }}</span>
+        <div class="col-span-3">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl border theme-border overflow-hidden bg-slate-100 flex-shrink-0">
+              <img v-if="course.thumbnail" :src="course.thumbnail" class="w-full h-full object-cover">
+              <div v-else class="w-full h-full flex items-center justify-center theme-bg-element theme-text-muted">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
             </div>
-            <button class="text-xs font-black text-indigo-600 uppercase tracking-[0.1em] hover:underline underline-offset-4 decoration-2">Manage Details</button>
+            <div class="flex flex-col min-w-0">
+              <span class="text-sm font-black theme-text-main truncate tracking-tight">{{ course.title }}</span>
+              <span class="text-[10px] theme-text-dim font-bold uppercase tracking-widest">{{ course.category?.name ||
+                `Uncategorized` }}</span>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+
+        <div class="col-span-3">
+          <div class="flex flex-col">
+            <span class="text-xs font-bold theme-text-main">{{ course.price_type === 'free' ? 'Free' :
+              formatPrice(course.price) }}</span>
+            <span class="text-[9px] theme-text-dim font-medium">{{ course.level }}</span>
+          </div>
+        </div>
+
+        <div class="col-span-1 text-center">
+          <span class="text-xs font-bold theme-text-main">{{ course.total_lectures }} Lectures</span>
+        </div>
+
+        <div class="col-span-1 flex justify-center">
+          <FeaturedToggle :model-value="!!course.is_featured" @toggle="toggleFeatured(course)" />
+        </div>
+
+        <div class="col-span-1 flex justify-center">
+          <StatusToggle :model-value="course.status === 'published'" @toggle="toggleStatus(course)" />
+        </div>
+
+        <div class="col-span-2 text-right">
+          <div class="flex items-center justify-end">
+            <TableActionDock>
+              <button @click="editCourse(course)"
+                class="w-9 h-9 flex items-center justify-center rounded-xl text-amber-500 hover:bg-amber-500/10 transition-all">
+                <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </button>
+              <button @click="manageCurriculum(course)"
+                class="w-9 h-9 flex items-center justify-center rounded-xl text-indigo-500 hover:bg-indigo-500/10 transition-all"
+                title="Manage Curriculum">
+                <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+              </button>
+              <button @click="triggerDelete(course)"
+                class="w-9 h-9 flex items-center justify-center rounded-xl text-rose-500 hover:bg-rose-500/10 transition-all">
+                <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </TableActionDock>
+          </div>
+        </div>
+      </template>
+    </DataTable>
+
+    <ActionDialog :show="showDeleteModal" title="Delete Course"
+      :message="`Are you sure you want to delete '${courseToDelete?.title}'? This action cannot be undone.`"
+      :loading="deleting" @confirm="confirmDelete" @cancel="showDeleteModal = false" />
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, reactive } from 'vue';
+import { useRouter } from 'vue-router';
+import { courseService } from '../../../services/courseService';
+import PageHeader from '../../../components/common/PageHeader.vue';
+import TableActionDock from '../../../components/common/TableActionDock.vue';
+import TableSLCell from '../../../components/common/table/TableSLCell.vue';
+import PrimaryButton from '../../../components/common/PrimaryButton.vue';
+import FeaturedToggle from '../../../components/common/FeaturedToggle.vue';
+import StatusToggle from '../../../components/common/StatusToggle.vue';
+import ActionDialog from '../../../components/common/ActionDialog.vue';
+import DataTable from '../../../components/common/DataTable.vue';
+import { useToast } from '../../../composables/useToast';
+import { useCurrency } from '../../../composables/useCurrency';
 
-const categories = ['All Courses', 'Development', 'Design', 'Marketing', 'Business'];
-const activeCat = ref('All Courses');
+const router = useRouter();
+const toast = useToast();
+const { formatPrice } = useCurrency();
 
-const courses = [
-  { id: 1, title: 'Mastering Advanced Vue 3 Design Patterns', level: 'Advanced', lessons: 24, price: 49, rating: 4.9, instructor: 'Sarah Drasner', instructor_avatar: 'https://i.pravatar.cc/100?u=sarah', image: 'https://images.unsplash.com/photo-1547658719-da2b51169166?auto=format&fit=crop&q=80&w=800' },
-  { id: 2, title: 'Full-Stack Laravel & Vue 3 Masterclass', level: 'Pro', lessons: 42, price: 89, rating: 4.8, instructor: 'Taylor Otwell', instructor_avatar: 'https://i.pravatar.cc/100?u=taylor', image: 'https://images.unsplash.com/photo-1627398242454-45a1465c2479?auto=format&fit=crop&q=80&w=800' },
-  { id: 3, title: 'UI/UX Design Systems with Figma & Framer', level: 'Beginner', lessons: 18, price: 34, rating: 4.7, instructor: 'Zander White', instructor_avatar: 'https://i.pravatar.cc/100?u=zander', image: 'https://images.unsplash.com/photo-1558655146-d09347e92766?auto=format&fit=crop&q=80&w=800' }
+const tableHeaders = [
+  { label: 'SL', span: 1, align: 'left' },
+  { label: 'Course Info', span: 3, align: 'left' },
+  { label: 'Pricing & Level', span: 3, align: 'left' },
+  { label: 'Content', span: 1, align: 'center' },
+  { label: 'Featured', span: 1, align: 'center' },
+  { label: 'Status', span: 1, align: 'center' },
+  { label: 'Actions', span: 2, align: 'right' },
 ];
+
+const courses = ref([]);
+const loading = ref(true);
+const search = ref('');
+const deleting = ref(false);
+const showDeleteModal = ref(false);
+const courseToDelete = ref(null);
+
+const pagination = reactive({
+  current_page: 1,
+  last_page: 1,
+  per_page: 10,
+  total: 0,
+});
+
+const fetchCourses = async (page = 1) => {
+  loading.value = true;
+  try {
+    const data = await courseService.index({
+      page,
+      search: search.value,
+      per_page: pagination.per_page
+    });
+    courses.value = data.data;
+    const meta = data.meta;
+    pagination.current_page = meta.current_page;
+    pagination.last_page = meta.last_page;
+    pagination.total = meta.total;
+  } catch (error) {
+    toast.error('Failed to fetch courses');
+  } finally {
+    loading.value = false;
+  }
+};
+
+const formatSL = (index) => {
+  const sl = (pagination.current_page - 1) * pagination.per_page + index + 1;
+  return sl < 10 ? `0${sl}` : sl;
+};
+
+let debounceTimer;
+const debounceSearch = () => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    fetchCourses(1);
+  }, 500);
+};
+
+const createNewCourse = () => {
+  router.push({ name: 'admin.courses.create' });
+};
+
+const editCourse = (course) => {
+  router.push({ name: 'admin.courses.edit', params: { slug: course.slug } });
+};
+
+const manageCurriculum = (course) => {
+  router.push({ name: 'admin.courses.curriculum', params: { slug: course.slug } });
+};
+
+const toggleFeatured = async (course) => {
+  try {
+    await courseService.toggleFeatured(course.slug);
+    course.is_featured = !course.is_featured;
+    toast.success('Featured status updated');
+  } catch (error) {
+    toast.error('Failed to update featured status');
+  }
+};
+
+const toggleStatus = async (course) => {
+  try {
+    await courseService.toggleStatus(course.slug);
+    course.status = course.status === 'published' ? 'unpublished' : 'published';
+    toast.success('Status updated');
+  } catch (error) {
+    toast.error('Failed to update status');
+  }
+};
+
+const triggerDelete = (course) => {
+  courseToDelete.value = course;
+  showDeleteModal.value = true;
+};
+
+const confirmDelete = async () => {
+  if (!courseToDelete.value) return;
+  deleting.value = true;
+  try {
+    await courseService.destroy(courseToDelete.value.slug);
+    toast.success('Course deleted successfully');
+    showDeleteModal.value = false;
+    fetchCourses(pagination.current_page);
+  } catch (error) {
+    toast.error('Failed to delete course');
+  } finally {
+    deleting.value = false;
+  }
+};
+
+onMounted(() => {
+  fetchCourses();
+});
 </script>

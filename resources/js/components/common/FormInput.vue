@@ -26,10 +26,9 @@
         :value="modelValue"
         @input="$emit('update:modelValue', $event.target.value)"
         :placeholder="placeholder"
-        :required="required"
         :disabled="disabled"
         :class="[
-          'w-full py-6 rounded-2xl theme-bg-element border-2 theme-border outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm font-bold theme-text-main',
+          'w-full py-5 rounded-2xl theme-bg-element border-2 theme-border outline-none focus:border-indigo-500/50 focus:ring-4 focus:ring-indigo-500/10 transition-all text-sm font-bold theme-text-main',
           (icon || $slots.icon) ? 'pl-16 pr-12' : 'px-8',
           disabled ? 'opacity-60 cursor-not-allowed bg-slate-100/5' : ''
         ]"

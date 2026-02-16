@@ -1,51 +1,56 @@
 <template>
-  <aside 
-    :class="[
-      'fixed inset-y-0 left-0 z-50 w-72 theme-bg-sidebar backdrop-blur-xl border-r theme-border transition-transform duration-300 lg:translate-x-0',
-      isOpen ? 'translate-x-0' : '-translate-x-full'
-    ]"
-  >
+  <aside :class="[
+    'fixed inset-y-0 left-0 z-50 w-72 theme-bg-sidebar backdrop-blur-xl border-r theme-border transition-transform duration-300 lg:translate-x-0',
+    isOpen ? 'translate-x-0' : '-translate-x-full'
+  ]">
     <div class="flex flex-col h-full">
       <!-- Logo -->
       <div class="p-8 flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        <div
+          class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
           </svg>
         </div>
-        <span class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-slate-700 to-slate-500 dark:from-white dark:via-slate-200 dark:to-slate-400 tracking-tight">EduNexus</span>
+        <span
+          class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 via-slate-700 to-slate-500 dark:from-white dark:via-slate-200 dark:to-slate-400 tracking-tight">EduNexus</span>
       </div>
 
       <!-- Navigation -->
       <nav class="flex-1 px-4 space-y-1.5 overflow-y-auto custom-scrollbar pt-2">
         <div v-for="group in navGroups" :key="group.title" class="mb-6">
           <h3 class="px-4 text-[10px] font-bold theme-text-dim uppercase tracking-[0.2em] mb-3">{{ group.title }}</h3>
-          <router-link 
-            v-for="item in group.items" 
-            :key="item.name"
-            :to="item.to"
-            @click="$emit('close')"
+          <router-link v-for="item in group.items" :key="item.name" :to="item.to" @click="$emit('close')"
             class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 group relative border border-transparent theme-bg-hover"
-            :class="[$route.name?.startsWith(item.routeName) ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-600 dark:text-indigo-400 font-bold' : 'theme-text-muted hover:theme-text-main']"
-          >
+            :class="[$route.name?.startsWith(item.routeName) ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-600 dark:text-indigo-400 font-bold' : 'theme-text-muted hover:theme-text-main']">
             <div v-html="item.icon" class="w-5 h-5 transition-transform duration-300 group-hover:scale-110"></div>
             <span class="text-sm font-semibold tracking-tight">{{ item.name }}</span>
-            <div v-if="$route.name?.startsWith(item.routeName)" class="absolute right-3 w-1.5 h-1.5 bg-indigo-500 rounded-full shadow-lg shadow-indigo-500/50"></div>
+            <div v-if="$route.name?.startsWith(item.routeName)"
+              class="absolute right-3 w-1.5 h-1.5 bg-indigo-500 rounded-full shadow-lg shadow-indigo-500/50"></div>
           </router-link>
         </div>
       </nav>
 
       <!-- User Profile (Bottom) -->
       <div class="p-4 mt-auto border-t theme-border">
-        <div class="flex items-center gap-3 p-3 rounded-2xl theme-bg-card border theme-border theme-shadow transition-all theme-border-hover theme-bg-hover group cursor-pointer">
+        <router-link to="/admin/profile" @click="$emit('close')"
+          class="flex items-center gap-3 p-3 rounded-2xl theme-bg-card border theme-border theme-shadow transition-all theme-border-hover theme-bg-hover group cursor-pointer block">
           <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-500 p-[2px]">
-            <img src="https://ui-avatars.com/api/?name=Ashikur+Rahman&background=0b1120&color=fff" class="w-full h-full rounded-[10px] shadow-sm transform group-hover:scale-105 transition-transform" alt="User">
+            <img src="https://ui-avatars.com/api/?name=Ashikur+Rahman&background=0b1120&color=fff"
+              class="w-full h-full rounded-[10px] shadow-sm transform group-hover:scale-105 transition-transform"
+              alt="User">
           </div>
           <div class="flex-1 min-w-0">
             <p class="text-sm font-bold truncate theme-text-main">Ashikur Rahman</p>
-            <p class="text-[10px] theme-text-dim font-bold uppercase tracking-wider">Premium Student</p>
+            <p class="text-[10px] theme-text-dim font-bold uppercase tracking-wider">Administrator</p>
           </div>
-        </div>
+          <svg class="w-4 h-4 theme-text-dim opacity-0 group-hover:opacity-100 transition-opacity" fill="none"
+            stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </router-link>
       </div>
     </div>
   </aside>
@@ -68,7 +73,8 @@ const navGroups = [
   {
     title: 'Academic',
     items: [
-      { name: 'Courses', to: '/admin/courses', routeName: 'courses', icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>' },
+      { name: 'Courses', to: '/admin/courses', routeName: 'admin.courses', icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>' },
+      { name: 'Lessons', to: '/admin/lessons', routeName: 'lessons', icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>' },
       { name: 'Categories', to: '/admin/categories', routeName: 'categories', icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>' },
       { name: 'Bundles', to: '/admin/bundles', routeName: 'bundles', icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>' },
       { name: 'Assignments', to: '/admin/assignments', routeName: 'assignments', icon: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>' },

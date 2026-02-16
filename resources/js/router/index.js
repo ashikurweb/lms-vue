@@ -16,6 +16,11 @@ const routes = [
                 component: () => import('../views/frontend/courses/Index.vue')
             },
             {
+                path: 'courses/:slug',
+                name: 'frontend.courses.show',
+                component: () => import('../views/frontend/courses/Show.vue')
+            },
+            {
                 path: 'instructors',
                 name: 'frontend.instructors',
                 component: () => import('../views/frontend/instructors/Index.vue')
@@ -61,10 +66,36 @@ const routes = [
                 meta: { auth: true }
             },
             {
-                path: 'my-account',
-                name: 'profile',
+                path: ':username/profile',
+                name: 'user.profile',
                 component: () => import('../views/frontend/user/Profile.vue'),
-                meta: { auth: true } // Requires login, but is a frontend route
+                meta: { auth: true }, // Requires login, but is a frontend route
+                beforeEnter: (to, from, next) => {
+                    const token = localStorage.getItem('auth_token');
+                    const user = JSON.parse(localStorage.getItem('auth_user') || 'null');
+
+                    // Helper to check for admin role
+                    const isAdmin = () => {
+                        if (!user || !user.roles) return false;
+
+                        return user.roles.some((role) => {
+                            // If backend sends roles as strings: ["user", "super-admin"]
+                            if (typeof role === 'string') {
+                                return ['admin', 'super-admin'].includes(role);
+                            }
+
+                            // Fallback if roles are objects: [{ name: "super-admin" }]
+                            return ['admin', 'super-admin'].includes(role.name);
+                        });
+                    };
+
+                    // If user is admin, redirect to admin profile
+                    if (isAdmin()) {
+                        next({ name: 'admin.profile' });
+                    } else {
+                        next();
+                    }
+                }
             }
         ]
     },
@@ -75,7 +106,23 @@ const routes = [
         children: [
             { path: 'dashboard', name: 'dashboard', component: () => import('../views/admin/dashboard/Index.vue') },
             // Learning
-            { path: 'courses', name: 'courses', component: () => import('../views/admin/courses/Index.vue') },
+            {
+                path: 'courses',
+                children: [
+                    { path: '', name: 'admin.courses.index', component: () => import('../views/admin/courses/Index.vue') },
+                    { path: 'create', name: 'admin.courses.create', component: () => import('../views/admin/courses/Manage.vue') },
+                    { path: ':slug/edit', name: 'admin.courses.edit', component: () => import('../views/admin/courses/Manage.vue') },
+                    {
+                        path: ':slug/curriculum',
+                        children: [
+                            { path: '', name: 'admin.courses.curriculum', component: () => import('../views/admin/courses/Curriculum.vue') },
+                            { path: 'lesson/create', name: 'admin.courses.lesson.create', component: () => import('../views/admin/courses/LessonManage.vue') },
+                            { path: 'lesson/:lessonId/edit', name: 'admin.courses.lesson.edit', component: () => import('../views/admin/courses/LessonManage.vue') },
+                        ]
+                    },
+                ]
+            },
+            { path: 'lessons', name: 'lessons', component: () => import('../views/admin/lessons/Index.vue') },
             { path: 'categories', name: 'categories', component: () => import('../views/admin/categories/Index.vue') },
             { path: 'bundles', name: 'bundles', component: () => import('../views/admin/bundles/Index.vue') },
             { path: 'assignments', name: 'assignments', component: () => import('../views/admin/assignments/Index.vue') },
@@ -104,6 +151,8 @@ const routes = [
                 ]
             },
             { path: 'discussions', name: 'discussions', component: () => import('../views/admin/discussions/Index.vue') },
+            { path: 'discussions/create', name: 'discussions.create', component: () => import('../views/admin/discussions/Create.vue') },
+            { path: 'discussions/:uuid/edit', name: 'discussions.edit', component: () => import('../views/admin/discussions/Edit.vue') },
             { path: 'live-classes', name: 'live-classes', component: () => import('../views/admin/live-classes/Index.vue') },
             // Finance
             { path: 'orders', name: 'orders', component: () => import('../views/admin/orders/Index.vue') },
@@ -113,10 +162,12 @@ const routes = [
             { path: 'settings', name: 'settings', component: () => import('../views/admin/settings/Index.vue') },
             { path: 'settings/general', name: 'settings.general', component: () => import('../views/admin/settings/General.vue') },
             { path: 'current', name: 'current', component: () => import('../views/admin/current/Index.vue') },
-            { path: 'currencies', name: 'currencies', component: () => import('../views/admin/currencies/Index.vue') }
+            { path: 'currencies', name: 'currencies', component: () => import('../views/admin/currencies/Index.vue') },
+            { path: 'profile', name: 'admin.profile', component: () => import('../views/admin/profile/Index.vue') }
         ]
     }
 ];
+
 
 const router = createRouter({
     history: createWebHistory(),
@@ -154,7 +205,7 @@ router.beforeEach((to, from, next) => {
                 next();
             } else {
                 // User is logged in but NOT admin -> Send to frontend User Profile
-                next({ name: 'profile' });
+                next({ name: 'user.profile', params: { username: user.username } });
             }
         }
         else {
@@ -168,7 +219,7 @@ router.beforeEach((to, from, next) => {
             if (isAdmin()) {
                 next({ name: 'dashboard' });
             } else {
-                next({ name: 'profile' });
+                next({ name: 'user.profile', params: { username: user.username } });
             }
         } else {
             next();
