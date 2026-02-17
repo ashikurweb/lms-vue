@@ -53,6 +53,18 @@ Route::middleware(['auth.jwt'])->group(function () {
         Route::post('/progress', [\App\Http\Controllers\Api\LessonProgressController::class, 'store']);
         Route::get('/progress/{lessonId}', [\App\Http\Controllers\Api\LessonProgressController::class, 'show']);
     });
+
+    // Student Assignment Routes
+    Route::prefix('student')->group(function () {
+        Route::get('/assignments', [\App\Http\Controllers\Api\StudentAssignmentController::class, 'index']);
+        Route::get('/assignments/statistics', [\App\Http\Controllers\Api\StudentAssignmentController::class, 'myStatistics']);
+        Route::get('/assignments/{assignment}', [\App\Http\Controllers\Api\StudentAssignmentController::class, 'show']);
+        Route::get('/assignments/{assignment}/my-submissions', [\App\Http\Controllers\Api\StudentAssignmentController::class, 'mySubmissions']);
+        Route::post('/assignments/{assignment}/save-draft', [\App\Http\Controllers\Api\StudentAssignmentController::class, 'saveDraft']);
+        Route::post('/assignments/{assignment}/submit', [\App\Http\Controllers\Api\StudentAssignmentController::class, 'submit']);
+        Route::get('/assignments/{assignment}/submissions/{submission}', [\App\Http\Controllers\Api\StudentAssignmentController::class, 'getSubmission']);
+        Route::delete('/assignments/{assignment}/submissions/{submission}', [\App\Http\Controllers\Api\StudentAssignmentController::class, 'deleteDraft']);
+    });
 });
 
 
@@ -155,6 +167,19 @@ Route::middleware(['auth.jwt', 'admin.role'])->prefix('admin')->group(function (
     Route::post('/lessons/{lesson}/tracks', [\App\Http\Controllers\Api\Admin\LessonAttachmentController::class, 'trackStore']);
     Route::put('/video-tracks/{track}', [\App\Http\Controllers\Api\Admin\LessonAttachmentController::class, 'trackUpdate']);
     Route::delete('/video-tracks/{track}', [\App\Http\Controllers\Api\Admin\LessonAttachmentController::class, 'trackDestroy']);
+
+    // Assignment Routes (Admin)
+    Route::apiResource('assignments', \App\Http\Controllers\Api\Admin\AssignmentController::class);
+    Route::get('/courses/{course}/assignments', [\App\Http\Controllers\Api\Admin\AssignmentController::class, 'byCourse']);
+    Route::patch('/assignments/{assignment}/toggle-published', [\App\Http\Controllers\Api\Admin\AssignmentController::class, 'togglePublished']);
+    Route::patch('/assignments/{assignment}/toggle-required', [\App\Http\Controllers\Api\Admin\AssignmentController::class, 'toggleRequired']);
+    Route::post('/assignments/reorder', [\App\Http\Controllers\Api\Admin\AssignmentController::class, 'reorder']);
+    Route::get('/assignments/{assignment}/statistics', [\App\Http\Controllers\Api\Admin\AssignmentController::class, 'statistics']);
+    Route::get('/assignments/{assignment}/submissions', [\App\Http\Controllers\Api\Admin\AssignmentController::class, 'submissions']);
+    Route::post('/assignments/{assignment}/submissions/{submission}/grade', [\App\Http\Controllers\Api\Admin\AssignmentController::class, 'gradeSubmission']);
+    Route::post('/assignments/{assignment}/submissions/{submission}/request-resubmission', [\App\Http\Controllers\Api\Admin\AssignmentController::class, 'requestResubmission']);
+    Route::post('/assignments/{assignment}/bulk-grade', [\App\Http\Controllers\Api\Admin\AssignmentController::class, 'bulkGrade']);
+    Route::get('/assignments/{assignment}/export', [\App\Http\Controllers\Api\Admin\AssignmentController::class, 'exportSubmissions']);
 
     // Admin Profile Routes
     Route::get('/profile', [\App\Http\Controllers\Api\Admin\AdminProfileController::class, 'show']);
