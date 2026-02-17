@@ -99,10 +99,19 @@ class CourseController extends Controller
     public function toggleStatus(Course $course): JsonResponse
     {
         $newStatus = $course->status === 'published' ? 'unpublished' : 'published';
-        $course->update([
+        $updates = [
             'status' => $newStatus,
-            'is_published' => $newStatus === 'published'
-        ]);
+            'is_published' => $newStatus === 'published',
+        ];
+
+        if ($newStatus === 'published') {
+            $updates['is_approved'] = true;
+            if (empty($course->published_at)) {
+                $updates['published_at'] = now();
+            }
+        }
+
+        $course->update($updates);
 
         return response()->json([
             'message' => 'Status updated successfully',
