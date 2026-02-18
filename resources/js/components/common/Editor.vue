@@ -108,6 +108,18 @@
         <div v-html="btn.icon" class="w-4.5 h-4.5"></div>
       </button>
 
+      <!-- Table -->
+      <button 
+        @click="editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()"
+        type="button"
+        class="w-9 h-9 flex items-center justify-center rounded-lg transition-all active:scale-90 theme-text-muted hover:theme-bg-sidebar hover:theme-text-main"
+        title="Insert Table"
+      >
+        <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+        </svg>
+      </button>
+
       <div class="w-px h-6 bg-slate-700/20 mx-1"></div>
 
       <!-- Image Upload -->
@@ -142,6 +154,7 @@ import { Underline } from '@tiptap/extension-underline';
 import { TextAlign } from '@tiptap/extension-text-align';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { Color } from '@tiptap/extension-color';
+import { Table, TableRow, TableHeader, TableCell } from '@tiptap/extension-table';
 import api from '../../services/api';
 import { useToast } from '../../composables/useToast';
 
@@ -173,6 +186,10 @@ const editor = useEditor({
     Image.configure({ allowBase64: true }),
     TextAlign.configure({ types: ['heading', 'paragraph'] }),
     Placeholder.configure({ placeholder: props.placeholder }),
+    TableRow,
+    TableHeader,
+    TableCell,
+    Table,
   ],
   onUpdate: ({ editor }) => {
     emit('update:modelValue', editor.getHTML());
@@ -311,5 +328,41 @@ const listToolbarItems = [
     font-style: italic;
     color: #818cf8;
     margin: 2rem 0;
+}
+
+/* Table Styles */
+.editor-container .ProseMirror table {
+  border-collapse: collapse;
+  margin: 0;
+  overflow: hidden;
+  table-layout: fixed;
+  width: 100%;
+}
+
+.editor-container .ProseMirror td, .editor-container .ProseMirror th {
+  border: 2px solid #ced4da;
+  box-sizing: border-box;
+  min-width: 1em;
+  padding: 3px 5px;
+  position: relative;
+  vertical-align: top;
+}
+
+.editor-container .ProseMirror th {
+  background-color: #f1f3f4;
+  font-weight: bold;
+  text-align: left;
+}
+
+.editor-container .ProseMirror .selectedCell:after {
+  background: rgba(200, 200, 255, 0.4);
+  content: "";
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 2;
 }
 </style>
