@@ -96,6 +96,24 @@ const routes = [
                         next();
                     }
                 }
+            },
+            // Student Dashboard Routes
+            {
+                path: 'dashboard',
+                meta: { auth: true },
+                children: [
+                    {
+                        path: 'quizzes',
+                        name: 'student.quizzes',
+                        component: () => import('../views/frontend/student/quizzes/Index.vue')
+                    },
+                    {
+                        path: 'quizzes/:uuid/take',
+                        name: 'student.quizzes.take',
+                        component: () => import('../views/frontend/student/quizzes/Player.vue'),
+                        meta: { hideNavbar: true, hideFooter: true }
+                    }
+                ]
             }
         ]
     },

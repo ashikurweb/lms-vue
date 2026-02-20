@@ -64,6 +64,15 @@ Route::middleware(['auth.jwt'])->group(function () {
         Route::post('/assignments/{assignment}/submit', [\App\Http\Controllers\Api\StudentAssignmentController::class, 'submit']);
         Route::get('/assignments/{assignment}/submissions/{submission}', [\App\Http\Controllers\Api\StudentAssignmentController::class, 'getSubmission']);
         Route::delete('/assignments/{assignment}/submissions/{submission}', [\App\Http\Controllers\Api\StudentAssignmentController::class, 'deleteDraft']);
+        // Student Quiz Routes
+        Route::prefix('quizzes')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Api\StudentQuizController::class, 'index']);
+            Route::get('/my-quizzes', [\App\Http\Controllers\Api\StudentQuizController::class, 'myQuizzes']);
+            Route::post('/{quiz}/start', [\App\Http\Controllers\Api\StudentQuizController::class, 'start']);
+            Route::get('/attempts/{attempt}', [\App\Http\Controllers\Api\StudentQuizController::class, 'showAttempt']);
+            Route::post('/attempts/{attempt}/questions/{question}/answer', [\App\Http\Controllers\Api\StudentQuizController::class, 'saveAnswer']);
+            Route::post('/attempts/{attempt}/submit', [\App\Http\Controllers\Api\StudentQuizController::class, 'submit']);
+        });
     });
 });
 
@@ -180,6 +189,16 @@ Route::middleware(['auth.jwt', 'admin.role'])->prefix('admin')->group(function (
     Route::post('/assignments/{assignment}/submissions/{submission}/request-resubmission', [\App\Http\Controllers\Api\Admin\AssignmentController::class, 'requestResubmission']);
     Route::post('/assignments/{assignment}/bulk-grade', [\App\Http\Controllers\Api\Admin\AssignmentController::class, 'bulkGrade']);
     Route::get('/assignments/{assignment}/export', [\App\Http\Controllers\Api\Admin\AssignmentController::class, 'exportSubmissions']);
+
+    // Quiz Routes (Admin)
+    Route::apiResource('quizzes', \App\Http\Controllers\Api\Admin\QuizController::class);
+    Route::patch('/quizzes/{quiz}/toggle-published', [\App\Http\Controllers\Api\Admin\QuizController::class, 'togglePublished']);
+    Route::patch('/quizzes/{quiz}/toggle-required', [\App\Http\Controllers\Api\Admin\QuizController::class, 'toggleRequired']);
+    Route::get('/quizzes/{quiz}/statistics', [\App\Http\Controllers\Api\Admin\QuizController::class, 'statistics']);
+    Route::get('/quizzes/{quiz}/attempts', [\App\Http\Controllers\Api\Admin\QuizController::class, 'attempts']);
+    Route::post('/quizzes/{quiz}/questions/{question?}', [\App\Http\Controllers\Api\Admin\QuizController::class, 'saveQuestion']);
+    Route::delete('/quizzes/{quiz}/questions/{question}', [\App\Http\Controllers\Api\Admin\QuizController::class, 'deleteQuestion']);
+    Route::post('/quizzes/bulk-action', [\App\Http\Controllers\Api\Admin\QuizController::class, 'bulkAction']);
 
     // Admin Profile Routes
     Route::get('/profile', [\App\Http\Controllers\Api\Admin\AdminProfileController::class, 'show']);

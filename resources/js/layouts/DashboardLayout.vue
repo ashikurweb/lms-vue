@@ -1,11 +1,13 @@
 <template>
-  <div class="min-h-screen theme-bg-main theme-text-main font-sans selection:bg-indigo-500/30 transition-colors duration-500">
+  <div
+    class="min-h-screen theme-bg-main theme-text-main font-sans selection:bg-indigo-500/30 transition-colors duration-500">
     <!-- Sidebar Component -->
     <Sidebar :isOpen="isSidebarOpen" @close="isSidebarOpen = false" />
 
     <!-- Overlay for Mobile -->
     <transition name="fade">
-        <div v-if="isSidebarOpen" @click="isSidebarOpen = false" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 lg:hidden"></div>
+      <div v-if="isSidebarOpen" @click="isSidebarOpen = false"
+        class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 lg:hidden"></div>
     </transition>
 
     <!-- Main Content -->
@@ -35,11 +37,29 @@ const isSidebarOpen = ref(false);
 
 <style>
 /* Page Transitions */
-.page-enter-active, .page-leave-active { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-.page-enter-from { opacity: 0; transform: translateY(15px); }
-.page-leave-to { opacity: 0; transform: translateY(-15px); }
+.page-enter-active,
+.page-leave-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(15px);
+}
+
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-15px);
+}
 
 /* Global Fade */
-.fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
-.fade-enter-from, .fade-leave-to { opacity: 0; }
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
 </style>
